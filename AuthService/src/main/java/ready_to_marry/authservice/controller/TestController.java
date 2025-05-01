@@ -1,11 +1,10 @@
-package ready_to_marry.userservice.controller;
+package ready_to_marry.authservice.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.aspectj.weaver.ast.Test;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ready_to_marry.userservice.entity.user.Users;
-import ready_to_marry.userservice.repository.TestRepository;
+import ready_to_marry.authservice.entity.user.Users;
+import ready_to_marry.authservice.repository.TestRepository;
 
 @RestController
 @RequiredArgsConstructor
