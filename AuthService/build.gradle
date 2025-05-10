@@ -30,7 +30,7 @@ dependencyManagement {
 }
 
 dependencies {
-    // Spring Boot Starters
+    // Web & Actuator
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
@@ -38,9 +38,11 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
-    // Data Access
+    // Database (JPA + PostgreSQL)
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly     'org.postgresql:postgresql:42.2.5'
+
+    // Key-Value Store (Redis)
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
     // Validation
@@ -51,7 +53,7 @@ dependencies {
     runtimeOnly     'io.jsonwebtoken:jjwt-impl:0.12.3'
     runtimeOnly     'io.jsonwebtoken:jjwt-jackson:0.12.3'
 
-    // Service Discovery
+    // Service Discovery (Eureka Client)
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 
     // Dev Tools & Code Gen
