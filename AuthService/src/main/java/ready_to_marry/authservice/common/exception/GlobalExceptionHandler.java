@@ -111,7 +111,7 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 기타 서버 오류
+     * 기타 서버 오류 예외 처리
      * HTTP 500 + code=500
      */
     @ExceptionHandler(Exception.class)
