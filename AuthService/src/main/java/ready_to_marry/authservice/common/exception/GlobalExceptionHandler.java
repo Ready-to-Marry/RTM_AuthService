@@ -111,34 +111,6 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 인증 오류 예외 처리
-     * HTTP 401 + code=401
-     */
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ApiResponse<Void>> handleAuthFail(AuthenticationException ex) {
-        ApiResponse<Void> body = ApiResponse.<Void>builder()
-                .code(401)
-                .message("Unauthorized")
-                .data(null)
-                .build();
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
-    }
-
-    /**
-     * 인가 오류 예외 처리
-     * HTTP 403 + code=403
-     */
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ApiResponse<Void>> handleAccessDenied(AccessDeniedException ex) {
-        ApiResponse<Void> body = ApiResponse.<Void>builder()
-                .code(403)
-                .message("Forbidden")
-                .data(null)
-                .build();
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
-    }
-
-    /**
      * 기타 서버 오류
      * HTTP 500 + code=500
      */
