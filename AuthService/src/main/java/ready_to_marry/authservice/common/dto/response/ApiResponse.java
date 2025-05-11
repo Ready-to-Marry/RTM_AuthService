@@ -13,7 +13,7 @@ import java.util.List;
  * - message : 사람이 읽기 좋은 설명 메시지
  * - data    : 항상 포함되며, 단건 또는 배열 형태의 실제 응답 데이터
  * - meta    : 리스트 조회 시 페이징 정보(선택). null이면 JSON에서 제외
- * - errors  : 비즈니스 오류 발생 시 필드별 상세 메시지(선택). 빈 리스트 또는 null이면 JSON에서 제외
+ * - errors  : 검증 오류 발생 시 필드별 상세 메시지(선택). 빈 리스트 또는 null이면 JSON에서 제외
  */
 @Getter
 @Setter
@@ -35,7 +35,7 @@ public class ApiResponse<T> {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Meta meta;
 
-    // 검증 오류 등 필드별 상세, 빈 리스트 또는 null 시 JSON에서 제외
+    // 검증 오류 발생 시 필드별 상세 메시지, 빈 리스트 또는 null 시 JSON에서 제외
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<ErrorDetail> errors;
 }
