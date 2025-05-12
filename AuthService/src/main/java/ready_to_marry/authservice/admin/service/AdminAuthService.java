@@ -16,7 +16,9 @@ import ready_to_marry.authservice.common.enums.AuthMethod;
 import ready_to_marry.authservice.common.enums.Role;
 import ready_to_marry.authservice.common.exception.BusinessException;
 import ready_to_marry.authservice.common.jwt.JwtClaims;
+import ready_to_marry.authservice.common.jwt.JwtProperties;
 import ready_to_marry.authservice.common.jwt.JwtTokenProvider;
+import ready_to_marry.authservice.token.service.RefreshTokenService;
 
 /**
  * 관리자 계정 관련 비즈니스 로직
@@ -26,6 +28,9 @@ import ready_to_marry.authservice.common.jwt.JwtTokenProvider;
 public class AdminAuthService {
     private final AccountService accountService;
     private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtProperties jwtProperties;
+    private final RefreshTokenService refreshTokenService;
 
     /**
      * SUPER_ADMIN 권한으로 관리자 계정을 사전 등록
@@ -72,4 +77,49 @@ public class AdminAuthService {
 
     }
 
+    /**
+     * 관리자 로그인 처리
+     *
+     * @param request 로그인 요청 DTO
+     * @return 발급된 JWT 토큰 정보
+     * @throws BusinessException 인증 실패 시(code=1002)
+     */
+    @Transactional
+    public JwtResponse login(AdminLoginRequest request) {
+        AuthAccount account = accountService.findByLoginId(request.getLoginId())
+                .filter(a -> a.getAuthMethod().name().equals("INTERNAL") && a.getRole().name().equals("ADMIN"))
+                .orElseThrow(() -> new BusinessException(1002, "Invalid loginID or password"));
+
+        if (!passwordEncoder.matches(request.getPassword(), account.getPassword())) {
+            throw new BusinessException(1002, "Invalid loginID or password");
+        }
+
+        // 1) Access Token 생성
+        String accessToken = jwtTokenProvider.generateAccessToken(
+                account.getAccountId().toString(),
+                // role, adminRole 설정
+                JwtClaims.builder()
+                        .role(account.getRole().name())
+                        .adminRole(account.getAdminRole().name())
+                        .build()
+        );
+
+        // 2) Refresh Token 생성
+        String refreshToken = jwtTokenProvider.generateRefreshToken(
+                account.getAccountId().toString()
+        );
+
+        // 3) Refresh Token Redis에 저장
+        // refreshTokenService.save(account.getAccountId(), refreshToken);
+        // TODO: Redis에서 저장 실패시 에러 로직 추가
+
+        // 3) 응답 DTO
+        long expiresIn = jwtProperties.getAccessExpiry(); // 초 단위 만료 시간
+
+        return JwtResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .expiresIn(expiresIn)
+                .build();
+    }
 }

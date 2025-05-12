@@ -1,7 +1,5 @@
 package ready_to_marry.authservice.admin.controller;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -46,4 +44,23 @@ public class AdminAuthController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * 관리자 로그인
+     *
+     * @param request 로그인 요청 (loginId, password)
+     * @return access/refresh 토큰 정보
+     */
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse<JwtResponse>> login(@Valid @RequestBody AdminLoginRequest request) {
+        // 로그인 -> 토큰 생성 및 Redis 저장
+        JwtResponse tokens = adminAuthService.login(request);
+
+        ApiResponse<JwtResponse> response = ApiResponse.<JwtResponse>builder()
+                .code(0)
+                .message("OK")
+                .data(tokens)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
 }
