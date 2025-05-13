@@ -43,7 +43,8 @@ public class AdminAuthService {
      * SUPER_ADMIN 권한으로 관리자 계정을 사전 등록
      *
      * @param request 관리자 가입 요청 DTO
-     * @throws BusinessException 동일한 loginId가 이미 존재할 때 (code=1001)
+     * @throws BusinessException        code=1001, DUPLICATE_LOGIN_ID
+     * @throws InfrastructureException  code=2001, DB_WRITE_FAILURE
      */
     @Transactional
     public void registerAdmin(AdminSignupRequest request) {
@@ -96,7 +97,8 @@ public class AdminAuthService {
      *
      * @param request 로그인 요청 DTO
      * @return 발급된 JWT 토큰 정보
-     * @throws BusinessException 인증 실패 시(code=1002)
+     * @throws BusinessException        code=1002, INVALID_CREDENTIALS
+     * @throws InfrastructureException  code=2002, REDIS_SAVE_FAILURE
      */
     @Transactional
     public JwtResponse login(AdminLoginRequest request) {
