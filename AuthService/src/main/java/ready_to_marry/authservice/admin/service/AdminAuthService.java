@@ -48,7 +48,7 @@ public class AdminAuthService {
         // 1) loginId 중복 검사
         accountService.findByLoginId(request.getLoginId())
                 .ifPresent(acc -> {
-                    throw new BusinessException(1001, "Duplicate login ID");
+                    throw new BusinessException(ErrorCode.DUPLICATE_LOGIN_ID);
                 });
         // 2) 비밀번호 암호화
         String encoded = passwordEncoder.encode(request.getPassword());
@@ -93,10 +93,10 @@ public class AdminAuthService {
     public JwtResponse login(AdminLoginRequest request) {
         AuthAccount account = accountService.findByLoginId(request.getLoginId())
                 .filter(a -> a.getAuthMethod().name().equals("INTERNAL") && a.getRole().name().equals("ADMIN"))
-                .orElseThrow(() -> new BusinessException(1002, "Invalid loginID or password"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_CREDENTIALS));
 
         if (!passwordEncoder.matches(request.getPassword(), account.getPassword())) {
-            throw new BusinessException(1002, "Invalid loginID or password");
+            throw new BusinessException(ErrorCode.INVALID_CREDENTIALS);
         }
 
         // 1) Access Token 생성
