@@ -125,6 +125,21 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * 인프라(시스템) 오류 예외 처리
+     * HTTP 500 + code>0
+     * code = (2000~2999)
+     */
+    @ExceptionHandler(InfrastructureException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInfrastructure(InfrastructureException ex) {
+        ApiResponse<Void> body = ApiResponse.<Void>builder()
+                .code(ex.getCode())
+                .message(ex.getMessage())
+                .data(null)
+                .build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+    }
+
+    /**
      * 기타 서버 오류 예외 처리
      * HTTP 500 + code=500
      */

@@ -1,6 +1,8 @@
 package ready_to_marry.authservice.admin.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +17,8 @@ import ready_to_marry.authservice.common.enums.AdminRole;
 import ready_to_marry.authservice.common.enums.AuthMethod;
 import ready_to_marry.authservice.common.enums.Role;
 import ready_to_marry.authservice.common.exception.BusinessException;
+import ready_to_marry.authservice.common.exception.ErrorCode;
+import ready_to_marry.authservice.common.exception.InfrastructureException;
 import ready_to_marry.authservice.common.jwt.JwtClaims;
 import ready_to_marry.authservice.common.jwt.JwtProperties;
 import ready_to_marry.authservice.common.jwt.JwtTokenProvider;
@@ -23,6 +27,7 @@ import ready_to_marry.authservice.token.service.RefreshTokenService;
 /**
  * 관리자 계정 관련 비즈니스 로직
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AdminAuthService {
@@ -110,8 +115,12 @@ public class AdminAuthService {
         );
 
         // 3) Refresh Token Redis에 저장
-        // refreshTokenService.save(account.getAccountId(), refreshToken);
-        // TODO: Redis에서 저장 실패시 에러 로직 추가
+        try {
+            refreshTokenService.save(account.getAccountId(), refreshToken);
+        }  catch (DataAccessException ex) {
+            log.error("{}: accountId={}", ErrorCode.REDIS_SAVE_FAILURE.getMessage(), account.getAccountId(), ex);
+            throw new InfrastructureException(ErrorCode.REDIS_SAVE_FAILURE, ex);
+        }
 
         // 3) 응답 DTO
         long expiresIn = jwtProperties.getAccessExpiry(); // 초 단위 만료 시간
