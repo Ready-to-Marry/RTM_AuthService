@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -30,7 +29,7 @@ public class GlobalExceptionHandler {
     /**
      * 비즈니스 오류 예외 처리
      * HTTP 200 + code>0
-     * code = 1001,1002 같은 애플리케이션 코드
+     * code = (1000~1999)
      * */
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiResponse<Void>> handleBusiness(BusinessException ex) {
@@ -94,6 +93,20 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * 인가 오류 예외 처리
+     * HTTP 403 + code=403
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAccessDenied(AccessDeniedException ex) {
+        ApiResponse<Void> body = ApiResponse.<Void>builder()
+                .code(403)
+                .message("Forbidden")
+                .data(null)
+                .build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+    }
+
+    /**
      * 리소스 없음 오류 예외 처리
      * HTTP 404 + code=404
      */
@@ -108,6 +121,21 @@ public class GlobalExceptionHandler {
                 .data(null)
                 .build();
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
+    /**
+     * 인프라(시스템) 오류 예외 처리
+     * HTTP 500 + code>0
+     * code = (2000~2999)
+     */
+    @ExceptionHandler(InfrastructureException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInfrastructure(InfrastructureException ex) {
+        ApiResponse<Void> body = ApiResponse.<Void>builder()
+                .code(ex.getCode())
+                .message(ex.getMessage())
+                .data(null)
+                .build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 
     /**

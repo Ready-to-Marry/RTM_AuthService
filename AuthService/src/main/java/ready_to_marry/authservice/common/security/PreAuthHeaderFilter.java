@@ -6,12 +6,16 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.web.filter.OncePerRequestFilter;
 import ready_to_marry.authservice.common.jwt.JwtTokenProvider;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -44,13 +48,28 @@ public class PreAuthHeaderFilter extends OncePerRequestFilter {
             String partnerId = request.getHeader("X-Partner-Id");
             String adminRole = request.getHeader("X-Admin-Role");
 
-            PreAuthenticatedAuthenticationToken auth = new PreAuthenticatedAuthenticationToken(accountId, null, null);
-            auth.setDetails(Map.of(
-                    "role",      role,
-                    "userId",    userId,
-                    "partnerId", partnerId,
-                    "adminRole", adminRole
-            ));
+            // 권한 리스트 생성
+            List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+            if (role != null) {
+                // 예: role="ADMIN" → "ROLE_ADMIN"
+                authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
+            }
+            if ("ADMIN".equals(role) && adminRole != null) {
+                // 예: adminRole="SUPER_ADMIN" → "ROLE_SUPER_ADMIN"
+                authorities.add(new SimpleGrantedAuthority("ROLE_" + adminRole));
+            }
+
+            PreAuthenticatedAuthenticationToken auth = new PreAuthenticatedAuthenticationToken(accountId, null, authorities);
+
+            Map<String,String> details = new HashMap<>();
+            if (userId != null) {
+                details.put("userId", userId);
+            }
+            if (partnerId != null) {
+                details.put("partnerId", partnerId);
+            }
+
+            auth.setDetails(details);
             SecurityContextHolder.getContext().setAuthentication(auth);
             log.debug("PreAuthHeaderFilter set authentication: accountId={}, role={}", accountId, role);
         }

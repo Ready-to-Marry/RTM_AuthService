@@ -3,6 +3,7 @@ package ready_to_marry.authservice.common.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -18,6 +19,7 @@ import ready_to_marry.authservice.common.security.RestAuthenticationEntryPoint;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
@@ -50,9 +52,8 @@ public class SecurityConfig {
                                 // FIXME: 임시로 로그인 및 회원가입 엔드포인트 추가함. 실제 엔드포인트로 변경 필요
                                 "/auth/users/oauth2",
                                 "/auth/partners/login",
-                                "/auth/partners/join",
-                                "/auth/admins/login",
-                                "/auth/admins/join"
+                                "/auth/partners/signup",
+                                "/auth/admins/login"
                         ).permitAll()
                         // 그 외 모든 요청은 인증 필요
                         .anyRequest().authenticated()
