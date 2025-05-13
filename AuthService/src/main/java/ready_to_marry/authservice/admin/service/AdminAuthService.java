@@ -24,6 +24,8 @@ import ready_to_marry.authservice.common.jwt.JwtProperties;
 import ready_to_marry.authservice.common.jwt.JwtTokenProvider;
 import ready_to_marry.authservice.token.service.RefreshTokenService;
 
+import static ready_to_marry.authservice.common.util.MaskingUtil.maskGenericLoginId;
+
 /**
  * 관리자 계정 관련 비즈니스 로직
  */
@@ -66,7 +68,14 @@ public class AdminAuthService {
                 .build();
 
         // 4) auth_account(authDB)에 저장
-        AuthAccount savedAccount = accountService.save(account);
+        AuthAccount savedAccount;
+        try {
+            savedAccount = accountService.save(account);
+        } catch (DataAccessException ex) {
+            String maskedLoginId = maskGenericLoginId(request.getLoginId());
+            log.error("{}: identifierType=loginId, identifierValue={}", ErrorCode.DB_WRITE_FAILURE.getMessage(), maskedLoginId, ex);
+            throw new InfrastructureException(ErrorCode.DB_WRITE_FAILURE, ex);
+        }
 
         // 5) ADMIN SERVICE에 요청할 DTO 생성 (INTERNAL API)
         AdminProfileRequest internalRequest = AdminProfileRequest.builder()
@@ -78,7 +87,7 @@ public class AdminAuthService {
 
         // 5) ADMIN SERVICE에 요청 (INTERNAL API) -> admin_profile(adminDB)에 저장
         // TODO: INTERNAL API 호출 로직 추가
-        // TODO: 각 DB의 테이블에서 저장 실패시 로직 추가
+        // TODO: INTERNAL API 호출 에러 시 처리 로직 추가
 
     }
 
@@ -118,7 +127,7 @@ public class AdminAuthService {
         try {
             refreshTokenService.save(account.getAccountId(), refreshToken);
         }  catch (DataAccessException ex) {
-            log.error("{}: accountId={}", ErrorCode.REDIS_SAVE_FAILURE.getMessage(), account.getAccountId(), ex);
+            log.error("{}: identifierType=accountId, identifierValue={}", ErrorCode.REDIS_SAVE_FAILURE.getMessage(), account.getAccountId(), ex);
             throw new InfrastructureException(ErrorCode.REDIS_SAVE_FAILURE, ex);
         }
 

@@ -11,6 +11,7 @@ public enum ErrorCode {
     INVALID_CREDENTIALS(1002, "Invalid login ID or password"),
 
     // 2xxx: 인프라(시스템) 오류
+    DB_WRITE_FAILURE(2001, "System error occurred while writing to database"),
     REDIS_SAVE_FAILURE(2002, "System error occurred while saving refresh token");
 
     private final int code;
