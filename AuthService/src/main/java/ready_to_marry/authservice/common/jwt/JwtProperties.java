@@ -23,4 +23,7 @@ public class JwtProperties {
 
     // Refresh Token 만료 시간(초 단위)
     private long refreshExpiry;
+
+    // 인증 Token 만료 시간(초 단위)
+    private long verificationExpiry;
 }
