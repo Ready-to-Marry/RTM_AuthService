@@ -36,7 +36,7 @@ public class AuthAccount {
     private AuthMethod authMethod;
 
     // 로그인 및 회원가입 시 고유 ID (USER: 소셜 식별자  / PARTNER: EMAIL / ADMIN:  관리자 로그인 아이디)
-    @Column(name = "login_id", length = 512, nullable = false, unique = true)
+    @Column(name = "login_id", length = 255, nullable = false, unique = true)
     private String loginId;
 
     // 비밀번호 (USER: NULL / PARTNER, ADMIN: 암호화해서 저장)
