@@ -12,7 +12,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: "https://github.com/Ready-to-Marry/${SERVICE_REPO_NAME}", credentialsId: 'github-token'
+                git branch: 'onprem', url: "https://github.com/Ready-to-Marry/${SERVICE_REPO_NAME}", credentialsId: 'github-token'
             }
         }
         stage('Build Docker Image') {
@@ -42,7 +42,7 @@ pipeline {
                     sh 'rm -rf rtm-helm'
 
 	            withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_TOKEN')]) {
-	                sh "git clone https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/Ready-to-Marry/RTM_infra.git rtm-helm"
+	                sh "git clone --branch onprem https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/Ready-to-Marry/RTM_infra.git rtm-helm"
 	
 	                echo "🔧 Updating image tag to ${env.BUILD_NUMBER}..."
 	                sh """
@@ -55,7 +55,7 @@ pipeline {
 	                    
 	                    sh """
 	                    git commit -am 'Update image tag to ${env.BUILD_NUMBER}'
-	                    git push origin HEAD:main
+	                    git push origin HEAD:onprem
 	                    """
 	                }
 	            }
