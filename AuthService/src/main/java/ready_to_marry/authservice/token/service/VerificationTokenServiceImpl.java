@@ -19,7 +19,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
     private final JwtProperties jwtProperties;
 
     @Override
-    // redis 저장을 2회 재시도(backoff 100ms) 후에도 실패하면 DataAccessException을 던짐
+    // redis에 저장을 2회 재시도(backoff 100ms) 후에도 실패하면 DataAccessException을 던짐
     @Retryable(
             include = DataAccessException.class,
             maxAttempts = 3,
@@ -30,11 +30,23 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
     }
 
     @Override
+    // redis에 조회를 2회 재시도(backoff 100ms) 후에도 실패하면 DataAccessException을 던짐
+    @Retryable(
+            include = DataAccessException.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 100)
+    )
     public Optional<UUID> findAccountId(String token) {
         return verificationTokenRepository.find(token);
     }
 
     @Override
+    // redis에 삭제 2회 재시도(backoff 100ms) 후에도 실패하면 DataAccessException을 던짐
+    @Retryable(
+            include = DataAccessException.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 100)
+    )
     public void delete(String token) {
         verificationTokenRepository.delete(token);
     }

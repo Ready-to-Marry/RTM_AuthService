@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * JWT 설정 바인딩 클래스
  *
- * - application.properties의 jwt.secretKey, jwt.accessExpiry, jwt.refreshExpiry 프로퍼티를 매핑
+ * - application.properties의 jwt.secretKey, jwt.accessExpiry, jwt.refreshExpiry, jwt.verificationExpiry 프로퍼티를 매핑
  */
 @Getter
 @Setter
