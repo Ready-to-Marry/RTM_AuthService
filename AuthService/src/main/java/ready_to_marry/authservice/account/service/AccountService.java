@@ -1,6 +1,7 @@
 package ready_to_marry.authservice.account.service;
 
 import ready_to_marry.authservice.account.entity.AuthAccount;
+import ready_to_marry.authservice.common.enums.AccountStatus;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -16,6 +17,14 @@ public interface AccountService {
      * @return AuthAccount가 담긴 Optional
      */
     Optional<AuthAccount> findByLoginId(String loginId);
+
+    /**
+     * accountId로 계정 조회
+     *
+     * @param accountId 계정의 UUID
+     * @return AuthAccount가 담긴 Optional
+     */
+    Optional<AuthAccount> findById(UUID accountId);
 
     /**
      * 신규 계정 생성
@@ -39,7 +48,7 @@ public interface AccountService {
      * @param accountId 계정의 UUID
      * @param status 적용할 AccountStatus
      */
-    void updateStatus(UUID accountId, ready_to_marry.authservice.common.enums.AccountStatus status);
+    void updateStatus(UUID accountId, AccountStatus status);
 
     /**
      * 지정된 계정 삭제
