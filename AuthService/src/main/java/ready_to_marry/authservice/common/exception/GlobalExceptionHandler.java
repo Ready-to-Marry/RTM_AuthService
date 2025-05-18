@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
     /**
      * 비즈니스 오류 예외 처리
      * HTTP 200 + code>0
-     * code = (1000~1999)
+     * code = (1300~1399)
      * */
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiResponse<Void>> handleBusiness(BusinessException ex) {
@@ -117,7 +117,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleNotFound(RuntimeException ex) {
         ApiResponse<Void> body = ApiResponse.<Void>builder()
                 .code(404)
-                .message("Not Found")
+                .message(ex.getMessage())
                 .data(null)
                 .build();
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
@@ -126,7 +126,7 @@ public class GlobalExceptionHandler {
     /**
      * 인프라(시스템) 오류 예외 처리
      * HTTP 500 + code>0
-     * code = (2000~2999)
+     * code = (2300~2399)
      */
     @ExceptionHandler(InfrastructureException.class)
     public ResponseEntity<ApiResponse<Void>> handleInfrastructure(InfrastructureException ex) {
