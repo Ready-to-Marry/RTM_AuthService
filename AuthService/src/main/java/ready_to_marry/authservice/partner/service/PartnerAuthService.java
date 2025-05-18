@@ -12,14 +12,16 @@ import ready_to_marry.authservice.partner.dto.request.PartnerSignupRequest;
 public interface PartnerAuthService {
     /**
      * 파트너 회원가입 처리
-     * 0) 같은 loginId의 만료된 대기 계정 정리
-     * 1) loginId 중복 검사
-     * 2) password 암호화
-     * 3) auth_account 저장 (WAITING_EMAIL_VERIFICATION)
-     * 4) partner_profile 저장 (내부 API 호출)
-     * 5) auth_account에 partnerId 업데이트
-     * 6) 이메일 verification token 발급 및 Redis 저장
-     * 7) 이메일 인증 메일 전송
+     * 1) 같은 loginId의 만료된 대기 계정 정리
+     * 2) loginId 중복 검사
+     * 3) password 암호화
+     * 4)-1 AuthAccount 엔티티 생성
+     * 4)-2 auth_account(authDB)에 저장
+     * 5)-1 PARTNER SERVICE에 요청할 DTO 생성 (INTERNAL API)
+     * 5)-2 PARTNER SERVICE에 요청 (INTERNAL API) -> partner_profile(partnerDB)에 저장
+     * 6) auth_account에 partnerId 업데이트
+     * 7) 이메일 verification token 발급 및 Redis 저장
+     * 8) 이메일 인증 메일 전송
      *
      * @param request 파트너 회원가입 요청 DTO
      * @throws BusinessException        DUPLICATE_LOGIN_ID
