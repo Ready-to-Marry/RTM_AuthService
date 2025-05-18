@@ -43,8 +43,8 @@ public class AdminAuthService {
      * SUPER_ADMIN 권한으로 관리자 계정을 사전 등록
      *
      * @param request 관리자 가입 요청 DTO
-     * @throws BusinessException        code=1001, DUPLICATE_LOGIN_ID
-     * @throws InfrastructureException  code=2001, DB_WRITE_FAILURE
+     * @throws BusinessException        DUPLICATE_LOGIN_ID
+     * @throws InfrastructureException  DB_SAVE_FAILURE
      */
     @Transactional
     public void registerAdmin(AdminSignupRequest request) {
@@ -53,6 +53,7 @@ public class AdminAuthService {
                 .ifPresent(acc -> {
                     throw new BusinessException(ErrorCode.DUPLICATE_LOGIN_ID);
                 });
+
         // 2) 비밀번호 암호화
         String encoded = passwordEncoder.encode(request.getPassword());
 
@@ -74,8 +75,8 @@ public class AdminAuthService {
             savedAccount = accountService.save(account);
         } catch (DataAccessException ex) {
             String maskedLoginId = maskGenericLoginId(request.getLoginId());
-            log.error("{}: identifierType=loginId, identifierValue={}", ErrorCode.DB_WRITE_FAILURE.getMessage(), maskedLoginId, ex);
-            throw new InfrastructureException(ErrorCode.DB_WRITE_FAILURE, ex);
+            log.error("{}: identifierType=loginId, identifierValue={}", ErrorCode.DB_SAVE_FAILURE.getMessage(), maskedLoginId, ex);
+            throw new InfrastructureException(ErrorCode.DB_SAVE_FAILURE, ex);
         }
 
         // 5) ADMIN SERVICE에 요청할 DTO 생성 (INTERNAL API)
@@ -86,7 +87,7 @@ public class AdminAuthService {
                 .phone(request.getPhone())
                 .build();
 
-        // 5) ADMIN SERVICE에 요청 (INTERNAL API) -> admin_profile(adminDB)에 저장
+        // 6) ADMIN SERVICE에 요청 (INTERNAL API) -> admin_profile(adminDB)에 저장
         // TODO: INTERNAL API 호출 로직 추가
         // TODO: INTERNAL API 호출 에러 시 처리 로직 추가
 
@@ -97,8 +98,8 @@ public class AdminAuthService {
      *
      * @param request 로그인 요청 DTO
      * @return 발급된 JWT 토큰 정보
-     * @throws BusinessException        code=1002, INVALID_CREDENTIALS
-     * @throws InfrastructureException  code=2002, REDIS_SAVE_FAILURE
+     * @throws BusinessException        INVALID_CREDENTIALS
+     * @throws InfrastructureException  REFRESH_TOKEN_SAVE_FAILURE
      */
     @Transactional
     public JwtResponse login(AdminLoginRequest request) {
@@ -129,8 +130,8 @@ public class AdminAuthService {
         try {
             refreshTokenService.save(account.getAccountId(), refreshToken);
         }  catch (DataAccessException ex) {
-            log.error("{}: identifierType=accountId, identifierValue={}", ErrorCode.REDIS_SAVE_FAILURE.getMessage(), account.getAccountId(), ex);
-            throw new InfrastructureException(ErrorCode.REDIS_SAVE_FAILURE, ex);
+            log.error("{}: identifierType=accountId, identifierValue={}", ErrorCode.REFRESH_TOKEN_SAVE_FAILURE.getMessage(), account.getAccountId(), ex);
+            throw new InfrastructureException(ErrorCode.REFRESH_TOKEN_SAVE_FAILURE, ex);
         }
 
         // 3) 응답 DTO

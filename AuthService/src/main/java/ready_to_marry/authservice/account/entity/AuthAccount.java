@@ -53,17 +53,17 @@ public class AuthAccount {
     @Column(name = "admin_role", length = 20)
     private AdminRole adminRole;
 
-    // user_service 연동 ID(user_db.user_profile의 user_id)
+    // user_service 연동 ID (user_db.user_profile의 user_id)
     @Column(name = "user_id")
     private Long userId;
 
-    // partner_service 연동 ID(partner_db.partner_profile의 partner_id)
+    // partner_service 연동 ID (partner_db.partner_profile의 partner_id)
     @Column(name = "partner_id")
     private Long partnerId;
 
-    // 계정 상태 (PENDING / ACTIVE / WITHDRAWN)
+    // 계정 상태 (ACTIVE / WAITING_PROFILE_COMPLETION / WITHDRAWN / WAITING_EMAIL_VERIFICATION / PENDING_ADMIN_APPROVAL)
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", length = 20, nullable = false)
+    @Column(name = "status", length = 30, nullable = false)
     private AccountStatus status;
 
     // 계정 생성 시각
