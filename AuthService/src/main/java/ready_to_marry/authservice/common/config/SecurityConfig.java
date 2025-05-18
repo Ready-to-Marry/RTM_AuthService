@@ -53,6 +53,8 @@ public class SecurityConfig {
                                 "/auth/users/oauth2",
                                 "/auth/partners/login",
                                 "/auth/partners/signup",
+                                "/auth/partners/verify",
+                                "/auth/partners/verify/result",
                                 "/auth/admins/login"
                         ).permitAll()
                         // 그 외 모든 요청은 인증 필요

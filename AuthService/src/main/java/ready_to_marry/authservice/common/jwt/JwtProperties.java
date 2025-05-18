@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * JWT 설정 바인딩 클래스
  *
- * - application.properties의 jwt.secretKey, jwt.accessExpiry, jwt.refreshExpiry 프로퍼티를 매핑
+ * - application.properties의 jwt.secretKey, jwt.accessExpiry, jwt.refreshExpiry, jwt.verificationExpiry 프로퍼티를 매핑
  */
 @Getter
 @Setter
@@ -23,4 +23,7 @@ public class JwtProperties {
 
     // Refresh Token 만료 시간(초 단위)
     private long refreshExpiry;
+
+    // 인증 Token 만료 시간(초 단위)
+    private long verificationExpiry;
 }

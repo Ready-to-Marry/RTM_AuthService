@@ -39,4 +39,19 @@ public final class MaskingUtil {
 
         return prefix + masked + suffix;
     }
+
+    /**
+     * 긴 토큰 문자열을 부분 마스킹
+     * 예: "abcdef1234567890" → "abcd********7890"
+     */
+    public static String maskToken(String token) {
+        if (token == null || token.length() <= 8) {
+            return token;
+        }
+        int unmasked = 4; // 앞뒤로 보여줄 길이
+        String prefix = token.substring(0, unmasked);
+        String suffix = token.substring(token.length() - unmasked);
+        String maskedMiddle = "*".repeat(token.length() - 2 * unmasked);
+        return prefix + maskedMiddle + suffix;
+    }
 }

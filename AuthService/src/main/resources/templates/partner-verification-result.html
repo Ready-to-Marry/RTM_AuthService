@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <title>Ready to Marry</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Great+Vibes&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet"/>
+    <style>
+        :root {
+            --color-primary: #e5999c;
+            --color-accent: #c5a880;
+            --color-text: #4a4a4a;
+            --bg-page: #fbf6f4;
+            --bg-card: #ffffff;
+            --border-color: rgba(197, 168, 128, 0.3);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background: var(--bg-page);
+            color: var(--color-text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            padding: 2.5rem 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .logo {
+            font-family: 'Great Vibes', cursive;
+            font-size: 3.5rem;
+            color: var(--color-primary);
+            margin-bottom: 0.25rem;
+            line-height: 1;
+            white-space: nowrap;
+        }
+        .tagline {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.125rem;
+            color: var(--color-accent);
+            margin-bottom: 1.75rem;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+        .divider {
+            width: 60px;
+            height: 1px;
+            background: var(--color-accent);
+            margin: 0 auto 2rem;
+            position: relative;
+        }
+        .divider::before {
+            content: '❦';
+            position: absolute;
+            top: -0.65rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-card);
+            padding: 0 0.3rem;
+            color: var(--color-accent);
+            font-size: 1rem;
+        }
+        .status {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+            color: var(--color-primary);
+            white-space: nowrap;
+            overflow-x: auto;
+        }
+        .status.expired, .status.error, .status.retry { color: #777777; }
+        .message {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: #555555;
+            margin-bottom: 1.5rem;
+            white-space: nowrap;
+            overflow-x: auto;
+        }
+        a { color: var(--color-primary); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Logo & Tagline -->
+    <div class="logo">Ready to Marry</div>
+    <div class="tagline">파트너 회원가입 이메일 인증</div>
+
+    <div class="divider"></div>
+
+    <!-- 인증 상태 -->
+    <div th:if="${status == 'success'}" class="status">이메일 인증이 완료되었습니다!</div>
+    <div th:if="${status == 'expired'}" class="status expired">이메일 인증 유효 기간이 만료되었습니다.</div>
+    <div th:if="${status == 'retry'}" class="status retry">이메일 인증 중 시스템에 일시적 문제가 발생했습니다.</div>
+    <div th:if="${status == 'error'}" class="status error">이메일 인증 중 오류가 발생했습니다.</div>
+
+    <!-- 상세 메시지 -->
+    <div th:if="${status == 'success'}" class="message">관리자 승인 대기 중입니다.<br>승인되면 파트너 페이지에 로그인할 수 있습니다.</div>
+    <div th:if="${status == 'expired'}" class="message">인증 유효 기간이 만료되었습니다.<br>번거로우시겠지만 다시 회원가입을 진행해 주시기 바랍니다.</div>
+    <div th:if="${status == 'retry'}" class="message">잠시 후 다시 시도해주세요.<br>문제가 계속되면 <a href="mailto:readytomarry.help@gmail.com">readytomarry.help@gmail.com</a>로 문의바랍니다.</div>
+    <div th:if="${status == 'error'}" class="message">잠시 후 다시 시도해주세요.<br>문제가 지속되면 <a href="mailto:readytomarry.help@gmail.com">readytomarry.help@gmail.com</a>로 문의바랍니다.</div>
+</div>
+</body>
+</html>

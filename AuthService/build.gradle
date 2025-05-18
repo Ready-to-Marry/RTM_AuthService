@@ -57,6 +57,10 @@ dependencies {
     runtimeOnly     'io.jsonwebtoken:jjwt-impl:0.12.3'
     runtimeOnly     'io.jsonwebtoken:jjwt-jackson:0.12.3'
 
+    // HTML MAIL
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
     // Service Discovery (Eureka Client)
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 

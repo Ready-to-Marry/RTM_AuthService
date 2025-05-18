@@ -36,7 +36,7 @@ public class AuthAccount {
     private AuthMethod authMethod;
 
     // 로그인 및 회원가입 시 고유 ID (USER: 소셜 식별자  / PARTNER: EMAIL / ADMIN:  관리자 로그인 아이디)
-    @Column(name = "login_id", length = 512, nullable = false, unique = true)
+    @Column(name = "login_id", length = 255, nullable = false, unique = true)
     private String loginId;
 
     // 비밀번호 (USER: NULL / PARTNER, ADMIN: 암호화해서 저장)
@@ -53,17 +53,17 @@ public class AuthAccount {
     @Column(name = "admin_role", length = 20)
     private AdminRole adminRole;
 
-    // user_service 연동 ID(user_db.user_profile의 user_id)
+    // user_service 연동 ID (user_db.user_profile의 user_id)
     @Column(name = "user_id")
     private Long userId;
 
-    // partner_service 연동 ID(partner_db.partner_profile의 partner_id)
+    // partner_service 연동 ID (partner_db.partner_profile의 partner_id)
     @Column(name = "partner_id")
     private Long partnerId;
 
-    // 계정 상태 (PENDING / ACTIVE / WITHDRAWN)
+    // 계정 상태 (ACTIVE / WAITING_PROFILE_COMPLETION / WITHDRAWN / WAITING_EMAIL_VERIFICATION / PENDING_ADMIN_APPROVAL)
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", length = 20, nullable = false)
+    @Column(name = "status", length = 30, nullable = false)
     private AccountStatus status;
 
     // 계정 생성 시각
