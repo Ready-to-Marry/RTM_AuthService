@@ -76,10 +76,6 @@ public class WithdrawalHistory {
     @Column(name = "deleted_by", length = 20, nullable = false)
     private DeletionType deletedBy;
 
-    // 탈퇴 요청 IP
-    @Column(name = "ip_address", columnDefinition = "inet", nullable = false)
-    private InetAddress ipAddress;
-
     // 가입시각(auth_account의 created_at)
     @Column(name = "joined_at", nullable = false)
     private OffsetDateTime joinedAt;
