@@ -10,16 +10,22 @@ import org.springframework.transaction.annotation.Transactional;
 import ready_to_marry.authservice.account.entity.AuthAccount;
 import ready_to_marry.authservice.account.service.AccountService;
 import ready_to_marry.authservice.common.config.AppProperties;
+import ready_to_marry.authservice.common.dto.response.JwtResponse;
 import ready_to_marry.authservice.common.enums.AccountStatus;
 import ready_to_marry.authservice.common.enums.AuthMethod;
 import ready_to_marry.authservice.common.enums.Role;
 import ready_to_marry.authservice.common.exception.BusinessException;
 import ready_to_marry.authservice.common.exception.ErrorCode;
 import ready_to_marry.authservice.common.exception.InfrastructureException;
+import ready_to_marry.authservice.common.jwt.JwtClaims;
+import ready_to_marry.authservice.common.jwt.JwtProperties;
+import ready_to_marry.authservice.common.jwt.JwtTokenProvider;
 import ready_to_marry.authservice.common.util.MaskingUtil;
+import ready_to_marry.authservice.partner.dto.request.PartnerLoginRequest;
 import ready_to_marry.authservice.partner.dto.request.PartnerProfileRequest;
 import ready_to_marry.authservice.partner.dto.request.PartnerSignupRequest;
 import ready_to_marry.authservice.partner.email.EmailService;
+import ready_to_marry.authservice.token.service.RefreshTokenService;
 import ready_to_marry.authservice.token.service.VerificationTokenService;
 
 import java.time.OffsetDateTime;
@@ -35,6 +41,9 @@ public class PartnerAuthServiceImpl implements PartnerAuthService {
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private final AppProperties appProperties;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final RefreshTokenService refreshTokenService;
+    private final JwtProperties jwtProperties;
 
     @Override
     @Transactional
@@ -180,5 +189,85 @@ public class PartnerAuthServiceImpl implements PartnerAuthService {
             log.error("{}: identifierType=accountId, identifierValue={}", ErrorCode.VERIFICATION_TOKEN_DELETE_FAILURE.getMessage(), accountId, ex);
             throw new InfrastructureException(ErrorCode.VERIFICATION_TOKEN_DELETE_FAILURE, ex);
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public JwtResponse login(PartnerLoginRequest request) {
+        // 0) 마스킹된 loginId 준비 (로그용)
+        String maskedLoginId = MaskingUtil.maskEmailLoginId(request.getLoginId());
+
+        // 1) 계정 조회 및 승인 상태 확인
+        AuthAccount account;
+        try {
+            account = accountService.findByLoginId(request.getLoginId())
+                    .filter(a -> a.getRole() == Role.PARTNER)
+                    .orElseThrow(() -> {
+                        log.error("{}: identifierType=loginId, identifierValue={}", ErrorCode.INVALID_CREDENTIALS.getMessage(), maskedLoginId);
+                        return new BusinessException(ErrorCode.INVALID_CREDENTIALS);
+                    });
+        } catch (DataAccessException ex) {
+            log.error("{}: identifierType=loginId, identifierValue={}", ErrorCode.DB_RETRIEVE_FAILURE.getMessage(), maskedLoginId, ex);
+            throw new InfrastructureException(ErrorCode.DB_RETRIEVE_FAILURE, ex);
+        }
+
+        switch (account.getStatus()) {
+            case WAITING_EMAIL_VERIFICATION:
+                // 이메일 인증 전
+                log.error("{}: identifierType=loginId, identifierValue={}", ErrorCode.EMAIL_NOT_VERIFIED.getMessage(), maskedLoginId);
+                throw new BusinessException(ErrorCode.EMAIL_NOT_VERIFIED);
+
+            case PENDING_ADMIN_APPROVAL:
+                // 관리자 승인 대기 중
+                log.error("{}: identifierType=loginId, identifierValue={}", ErrorCode.PENDING_ADMIN_APPROVAL.getMessage(), maskedLoginId);
+                throw new BusinessException(ErrorCode.PENDING_ADMIN_APPROVAL);
+
+            case ACTIVE:
+                // 정상 로그인 가능
+                break;
+
+            default:
+                // (이론적으로 여기로 오지는 않지만, 안전망으로 처리)
+                log.error("{}: identifierType=loginId, identifierValue={}", ErrorCode.INVALID_CREDENTIALS.getMessage(), maskedLoginId);
+                throw new BusinessException(ErrorCode.INVALID_CREDENTIALS);
+        }
+
+        // 2) 비밀번호 검증
+        if (!passwordEncoder.matches(request.getPassword(), account.getPassword())) {
+            log.error("{}: identifierType=loginId, identifierValue={}", ErrorCode.INVALID_CREDENTIALS.getMessage(), maskedLoginId);
+            throw new BusinessException(ErrorCode.INVALID_CREDENTIALS);
+        }
+
+        // 3) Access Token 생성
+        String accessToken = jwtTokenProvider.generateAccessToken(
+                account.getAccountId().toString(),
+                // role, adminRole 설정
+                JwtClaims.builder()
+                        .role(account.getRole().name())
+                        .partnerId(account.getPartnerId())
+                        .build()
+        );
+
+        // 4) Refresh Token 생성
+        String refreshToken = jwtTokenProvider.generateRefreshToken(
+                account.getAccountId().toString()
+        );
+
+        // 5) Refresh Token Redis에 저장
+        try {
+            refreshTokenService.save(account.getAccountId(), refreshToken);
+        }  catch (DataAccessException ex) {
+            log.error("{}: identifierType=accountId, identifierValue={}", ErrorCode.REFRESH_TOKEN_SAVE_FAILURE.getMessage(), account.getAccountId(), ex);
+            throw new InfrastructureException(ErrorCode.REFRESH_TOKEN_SAVE_FAILURE, ex);
+        }
+
+        // 6) 응답 DTO
+        long expiresIn = jwtProperties.getAccessExpiry(); // 초 단위 만료 시간
+
+        return JwtResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .expiresIn(expiresIn)
+                .build();
     }
 }

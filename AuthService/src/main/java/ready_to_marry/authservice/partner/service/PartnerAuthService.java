@@ -1,7 +1,9 @@
 package ready_to_marry.authservice.partner.service;
 
+import ready_to_marry.authservice.common.dto.response.JwtResponse;
 import ready_to_marry.authservice.common.exception.BusinessException;
 import ready_to_marry.authservice.common.exception.InfrastructureException;
+import ready_to_marry.authservice.partner.dto.request.PartnerLoginRequest;
 import ready_to_marry.authservice.partner.dto.request.PartnerSignupRequest;
 
 /**
@@ -42,4 +44,23 @@ public interface PartnerAuthService {
      * @throws InfrastructureException  VERIFICATION_TOKEN_DELETE_FAILURE
      */
     void verifyEmail(String token);
+
+    /**
+     * 파트너 로그인 처리
+     * 1) 계정 조회 및 승인 상태 확인
+     * 2) 비밀번호 검증
+     * 3) Access Token 생성
+     * 4) Refresh Token 생성
+     * 5) Refresh Token Redis에 저장
+     * 6) 응답 DTO
+     *
+     * @param request 로그인 요청 DTO
+     * @return 발급된 JWT 토큰 정보
+     * @throws BusinessException        INVALID_CREDENTIALS
+     * @throws BusinessException        EMAIL_NOT_VERIFIED
+     * @throws BusinessException        PENDING_ADMIN_APPROVAL
+     * @throws InfrastructureException  DB_RETRIEVE_FAILURE
+     * @throws InfrastructureException  REFRESH_TOKEN_SAVE_FAILURE
+     */
+    JwtResponse login(PartnerLoginRequest request);
 }

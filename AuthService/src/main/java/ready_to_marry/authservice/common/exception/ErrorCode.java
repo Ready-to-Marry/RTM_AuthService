@@ -10,6 +10,8 @@ public enum ErrorCode {
     DUPLICATE_LOGIN_ID(1301, "Duplicate login ID"),
     INVALID_CREDENTIALS(1302, "Invalid login ID or password"),
     INVALID_VERIFICATION_TOKEN(1303, "Invalid verification token"),
+    EMAIL_NOT_VERIFIED(1304, "Email not verified"),
+    PENDING_ADMIN_APPROVAL(1305, "Pending admin approval"),
 
     // 2xxx: 인프라(시스템) 오류
     DB_SAVE_FAILURE(2301, "System error occurred while saving data to the database"),
