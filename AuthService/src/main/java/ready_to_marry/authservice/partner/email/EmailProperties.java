@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * 메일 전송 관련 설정 바인딩 클래스
  *
- * - app.mail.from, app.mail.partnerVerificationSubject, app.mail.templates.* 프로퍼티를 매핑
+ * - app.mail.* 프로퍼티를 매핑
  */
 @Getter
 @Setter
@@ -21,6 +21,12 @@ public class EmailProperties {
     // 파트너 인증 메일 제목
     private String partnerVerificationSubject;
 
+    // 파트너 계정 승인 안내 메일 제목
+    private String partnerApprovedSubject;
+
+    // 파트너 계정 거부 안내 메일 제목
+    private String partnerRejectedSubject;
+
     // 템플릿 파일명 (classpath:/templates/)
     private Templates templates = new Templates();
 
@@ -29,5 +35,11 @@ public class EmailProperties {
     public static class Templates {
         // 파트너 인증 이메일 템플릿 파일명
         private String partnerVerification;
+
+        // 파트너 계정 승인 안내 템플릿 파일명
+        private String partnerApproved;
+
+        // 파트너 계정 거부 안내 템플릿 파일명
+        private String partnerRejected;
     }
 }
