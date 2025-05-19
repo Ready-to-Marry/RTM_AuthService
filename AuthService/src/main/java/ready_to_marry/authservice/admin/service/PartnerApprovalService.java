@@ -1,6 +1,8 @@
 package ready_to_marry.authservice.admin.service;
 
 import ready_to_marry.authservice.admin.dto.request.PartnerRejectionRequest;
+import ready_to_marry.authservice.common.exception.BusinessException;
+import ready_to_marry.authservice.common.exception.InfrastructureException;
 
 import java.util.UUID;
 
@@ -14,6 +16,9 @@ public interface PartnerApprovalService {
      * 2) auth_account에 status 업데이트 (PENDING_ADMIN_APPROVAL -> ACTIVE)
      *
      * @param accountId 승인 대상 계정의 UUID
+     * @throws BusinessException        PENDING_ADMIN_APPROVAL_REQUIRED
+     * @throws InfrastructureException  DB_RETRIEVE_FAILURE
+     * @throws InfrastructureException  DB_SAVE_FAILURE
      */
     void approvePartner(UUID accountId);
 
@@ -27,6 +32,11 @@ public interface PartnerApprovalService {
      *
      * @param accountId 거부 대상 계정의 UUID
      * @param request 관리자 파트너 승인 거절 요청 DTO
+     * @throws BusinessException        PENDING_ADMIN_APPROVAL_REQUIRED
+     * @throws InfrastructureException  DB_RETRIEVE_FAILURE
+     * @throws InfrastructureException  DB_SAVE_FAILURE
+     * @throws InfrastructureException  DB_DELETE_FAILURE
+     * @throws InfrastructureException JSON_SERIALIZATION_FAILURE
      */
     void rejectPartner(UUID accountId, PartnerRejectionRequest request);
 }
