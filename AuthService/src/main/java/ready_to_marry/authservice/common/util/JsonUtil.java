@@ -20,6 +20,8 @@ public final class JsonUtil {
 
     /**
      * 객체를 JSON 문자열로 직렬화
+     *
+     * @throws InfrastructureException JSON_SERIALIZATION_FAILURE
      */
     public static String toJson(Object obj) {
         try {
