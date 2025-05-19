@@ -19,6 +19,7 @@ import ready_to_marry.authservice.common.exception.BusinessException;
 import ready_to_marry.authservice.common.exception.ErrorCode;
 import ready_to_marry.authservice.common.exception.InfrastructureException;
 import ready_to_marry.authservice.common.util.JsonUtil;
+import ready_to_marry.authservice.partner.email.EmailService;
 
 import java.util.UUID;
 
@@ -28,6 +29,7 @@ import java.util.UUID;
 public class PartnerApprovalServiceImpl implements PartnerApprovalService{
     private final AccountService accountService;
     private final WithdrawalHistoryService withdrawalHistoryService;
+    private final EmailService emailService;
 
     @Override
     @Transactional
@@ -58,6 +60,9 @@ public class PartnerApprovalServiceImpl implements PartnerApprovalService{
             log.error("{}: identifierType=accountId, identifierValue={}", ErrorCode.DB_SAVE_FAILURE.getMessage(), accountId, ex);
             throw new InfrastructureException(ErrorCode.DB_SAVE_FAILURE, ex);
         }
+
+        // 3) 계정 승인 안내 메일 전송 (비동기, 실패 무시)
+        emailService.sendPartnerApproved(account.getLoginId());
     }
 
     @Override
@@ -124,5 +129,8 @@ public class PartnerApprovalServiceImpl implements PartnerApprovalService{
         // 5) PARTNER SERVICE에 요청 (INTERNAL API) -> partner_profile(partnerDB) 삭제
         // TODO: INTERNAL API 호출 로직 추가
         // TODO: INTERNAL API 호출 에러 시 처리 로직 추가
+
+        // 6) 계정 거부 안내 메일 전송 (비동기, 실패 무시)
+        emailService.sendPartnerRejected(account.getLoginId(), request.getReason());
     }
 }
