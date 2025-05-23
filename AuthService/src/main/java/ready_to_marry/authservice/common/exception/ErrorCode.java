@@ -13,6 +13,10 @@ public enum ErrorCode {
     EMAIL_NOT_VERIFIED(1304, "Email not verified"),
     PENDING_ADMIN_APPROVAL(1305, "Pending admin approval"),
     PENDING_ADMIN_APPROVAL_REQUIRED(1306, "Pending admin approval status required"),
+    PROVIDER_NOT_SUPPORTED(1307, "Unsupported OAuth2 provider"),
+    INVALID_OAUTH2_STATE(1308, "Invalid OAuth2 state"),
+    ACCOUNT_NOT_FOUND(1309, "Account not found"),
+    PROFILE_ALREADY_COMPLETED(1310, "User profile is already completed"),
 
     // 2xxx: 인프라(시스템) 오류
     DB_SAVE_FAILURE(2301, "System error occurred while saving data to the database"),
@@ -23,7 +27,12 @@ public enum ErrorCode {
     VERIFICATION_TOKEN_DELETE_FAILURE(2306, "System error occurred while deleting verification token from redis"),
     VERIFICATION_TOKEN_RETRIEVE_FAILURE(2307, "System error occurred while retrieving verification token from redis"),
     EMAIL_SEND_FAILURE(2308, "System error occurred while sending verification email"),
-    JSON_SERIALIZATION_FAILURE(2309, "System error occurred while serializing object to JSON");
+    JSON_SERIALIZATION_FAILURE(2309, "System error occurred while serializing object to JSON"),
+    PKCE_CHALLENGE_GENERATION_FAILURE(2310, "System error occurred while generating PKCE code_challenge"),
+    OAUTH_STATE_SAVE_FAILURE(2311, "System error occurred while saving OAuth state"),
+    OAUTH_STATE_RETRIEVE_REMOVE_FAILURE(2312, "System error occurred while retrieving or removing OAuth state"),
+    OAUTH_TOKEN_EXCHANGE_FAILURE(2313, "System error occurred while exchanging OAuth token"),
+    OAUTH_USERINFO_FAILURE(2314, "System error occurred while fetching user info from OAuth provider");
 
     private final int code;
     private final String message;

@@ -54,4 +54,66 @@ public final class MaskingUtil {
         String maskedMiddle = "*".repeat(token.length() - 2 * unmasked);
         return prefix + maskedMiddle + suffix;
     }
+
+    /**
+     * verifier 문자열 부분 마스킹
+     */
+    public static String maskVerifier(String verifier) {
+        if (verifier == null || verifier.length() < 8) {
+            return "****";
+        }
+        String prefix = verifier.substring(0, 4);
+        String suffix = verifier.substring(verifier.length() - 4);
+        return prefix + "..." + suffix;
+    }
+
+    /**
+     * state 문자열 부분 마스킹
+     */
+    public static String maskState(String state) {
+        if (state == null || state.length() < 8) {
+            return "****";
+        }
+        String prefix = state.substring(0, 4);
+        String suffix = state.substring(state.length() - 4);
+        return prefix + "..." + suffix;
+    }
+
+    /**
+     * code 문자열 부분 마스킹
+     */
+    public static String maskCode(String code) {
+        if (code == null || code.length() < 4) {
+            return "****";
+        }
+        String prefix = code.substring(0, 2);
+        String suffix = code.substring(code.length() - 2);
+        return prefix + "..." + suffix;
+    }
+
+    /**
+     * 소셜 로그인 형태의 loginId를 부분 마스킹
+     * 예: "kakao|123456789" → "kakao|12*****89"
+     */
+    public static String maskSocialLoginId(String socialLoginId) {
+        if (socialLoginId == null || !socialLoginId.contains("|")) {
+            return "****";
+        }
+
+        String[] parts = socialLoginId.split("\\|", 2);
+        String provider = parts[0];
+        String userId = parts[1];
+
+        String maskedUserId;
+        if (userId == null || userId.length() <= 4) {
+            maskedUserId = "*".repeat(userId.length());
+        } else {
+            String prefix = userId.substring(0, 2);
+            String suffix = userId.substring(userId.length() - 2);
+            String masked = "*".repeat(userId.length() - 4);
+            maskedUserId = prefix + masked + suffix;
+        }
+
+        return provider + "|" + maskedUserId;
+    }
 }
