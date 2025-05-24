@@ -43,6 +43,15 @@ public interface AccountService {
     void updatePartnerId(UUID accountId, Long partnerId);
 
     /**
+     * 계정에 연결된 userId, status 업데이트
+     *
+     * @param accountId 계정의 UUID
+     * @param userId 유저 서비스의 식별자
+     * @param status 적용할 AccountStatus
+     */
+    void updateUserIdAndStatus(UUID accountId, Long userId, AccountStatus status);
+
+    /**
      * 계정 상태 업데이트
      *
      * @param accountId 계정의 UUID
