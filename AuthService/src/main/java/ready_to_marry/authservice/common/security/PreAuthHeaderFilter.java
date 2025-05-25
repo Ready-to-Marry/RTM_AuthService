@@ -26,12 +26,24 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
 public class PreAuthHeaderFilter extends OncePerRequestFilter {
+    // 스킵할 URL 패턴
+    private static final List<String> EXCLUDE_URLS = List.of(
+            // FIXME: permitAll인 요청 주소 변경 확인
+            "/auth/oauth2/authorize/**",
+            "/auth/oauth2/callback/**",
+            "/auth/users/profile/complete",
+            "/auth/partners/login",
+            "/auth/partners/signup",
+            "/auth/partners/verify",
+            "/auth/partners/verify/result",
+            "/auth/admins/login",
+            "/auth/token/refresh"
+    );
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        // 리프레시 엔드포인트는 JwtRefreshTokenFilter에서만 처리
-        // FIXME: refresh Token 흐름인 요청 주소 변경 확인
-        return "/auth/token/refresh".equals(request.getRequestURI());
+        String path = request.getRequestURI();
+        return EXCLUDE_URLS.stream().anyMatch(path::startsWith);
     }
 
     @Override
