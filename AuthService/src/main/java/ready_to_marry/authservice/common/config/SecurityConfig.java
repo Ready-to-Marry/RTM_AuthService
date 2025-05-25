@@ -10,7 +10,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
 import ready_to_marry.authservice.common.jwt.JwtTokenProvider;
 import ready_to_marry.authservice.common.security.JwtRefreshTokenFilter;
 import ready_to_marry.authservice.common.security.PreAuthHeaderFilter;
@@ -47,9 +47,12 @@ public class SecurityConfig {
 
                 // 인증/인가 설정
                 .authorizeHttpRequests(authz -> authz
-                        // Auth Service 인증 엔드포인트만 모두 허용
+                        // 스프링 에러 핸들러 경로는 인증 없이 허용
+                        .requestMatchers("/error").permitAll()
+
+                        // 인증 없이 접근 가능한 Auth 서비스 엔드포인트
                         .requestMatchers(
-                                // FIXME: 임시로 로그인 및 회원가입 엔드포인트 추가함. 실제 엔드포인트로 변경 필요
+                                // FIXME: permitAll인 요청 주소 변경 확인
                                 "/auth/oauth2/authorize/**",
                                 "/auth/oauth2/callback/**",
                                 "/auth/users/profile/complete",
@@ -57,16 +60,18 @@ public class SecurityConfig {
                                 "/auth/partners/signup",
                                 "/auth/partners/verify",
                                 "/auth/partners/verify/result",
-                                "/auth/admins/login"
+                                "/auth/admins/login",
+                                "/auth/token/refresh"
                         ).permitAll()
+
                         // 그 외 모든 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
 
                 // 1) refresh 토큰 검증 필터
-                .addFilterBefore(
+                .addFilterAfter(
                         jwtRefreshTokenFilter(),
-                        AbstractPreAuthenticatedProcessingFilter.class
+                        ExceptionTranslationFilter.class
                 )
 
                 // 2) 컨텍스트 세팅 필터
