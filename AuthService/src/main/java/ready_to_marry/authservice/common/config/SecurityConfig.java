@@ -50,7 +50,9 @@ public class SecurityConfig {
                         // Auth Service 인증 엔드포인트만 모두 허용
                         .requestMatchers(
                                 // FIXME: 임시로 로그인 및 회원가입 엔드포인트 추가함. 실제 엔드포인트로 변경 필요
-                                "/auth/users/oauth2",
+                                "/auth/oauth2/authorize/**",
+                                "/auth/oauth2/callback/**",
+                                "/auth/users/profile/complete",
                                 "/auth/partners/login",
                                 "/auth/partners/signup",
                                 "/auth/partners/verify",

@@ -2,7 +2,6 @@ package ready_to_marry.authservice.account.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ready_to_marry.authservice.account.entity.AuthAccount;
@@ -12,7 +11,6 @@ import ready_to_marry.authservice.common.enums.AccountStatus;
 import java.util.Optional;
 import java.util.UUID;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 class AccountServiceImpl implements AccountService {
@@ -40,22 +38,25 @@ class AccountServiceImpl implements AccountService {
     @Transactional
     public void updatePartnerId(UUID accountId, Long partnerId) {
         AuthAccount account = authAccountRepository.findById(accountId)
-                .orElseThrow(() -> {
-                    log.error("Account not found: identifierType=accountId, identifierValue={}", accountId);
-                    return new EntityNotFoundException("Account not found");
-                });
+                .orElseThrow(() -> new EntityNotFoundException("Account(" + accountId + ") not found"));
 
         account.setPartnerId(partnerId);
     }
 
     @Override
     @Transactional
+    public void updateUserIdAndStatus(UUID accountId, Long userId, AccountStatus status) {
+        AuthAccount account = authAccountRepository.findById(accountId)
+                .orElseThrow(() -> new EntityNotFoundException("Account(" + accountId + ") not found"));
+        account.setUserId(userId);
+        account.setStatus(status);
+    }
+
+    @Override
+    @Transactional
     public void updateStatus(UUID accountId, AccountStatus status) {
         AuthAccount account = authAccountRepository.findById(accountId)
-                .orElseThrow(() -> {
-                    log.error("Account not found: identifierType=accountId, identifierValue={}", accountId);
-                    return new EntityNotFoundException("Account not found");
-                });
+                .orElseThrow(() -> new EntityNotFoundException("Account(" + accountId + ") not found"));
 
         account.setStatus(status);
     }
