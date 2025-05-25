@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * 인증이 필요할 때(401) JSON 응답을 내려주는 EntryPoint
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
@@ -25,6 +27,8 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request,
                          HttpServletResponse response,
                          AuthenticationException authException) throws IOException, ServletException {
+        log.error("401 Unauthorized on [{} {}]: reason={}", request.getMethod(), request.getRequestURI(), authException.getMessage());
+
         ApiResponse<Void> body = ApiResponse.<Void>builder()
                 .code(401)
                 .message("Unauthorized")
