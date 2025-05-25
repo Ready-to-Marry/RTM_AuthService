@@ -9,6 +9,7 @@ import ready_to_marry.authservice.common.jwt.JwtProperties;
 import ready_to_marry.authservice.token.repository.RefreshTokenRepository;
 
 import java.time.Duration;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -26,5 +27,27 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     )
     public void save(UUID accountId, String token) {
         refreshTokenRepository.save(accountId, token, Duration.ofSeconds(jwtProperties.getRefreshExpiry()));
+    }
+
+    @Override
+    // redis에 조회를 2회 재시도(backoff 100ms) 후에도 실패하면 DataAccessException을 던짐
+    @Retryable(
+            include = DataAccessException.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 100)
+    )
+    public Optional<String> findRefreshToken(UUID accountId) {
+        return refreshTokenRepository.find(accountId);
+    }
+
+    @Override
+    // redis에 삭제 2회 재시도(backoff 100ms) 후에도 실패하면 DataAccessException을 던짐
+    @Retryable(
+            include = DataAccessException.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 100)
+    )
+    public void delete(UUID accountId) {
+        refreshTokenRepository.delete(accountId);
     }
 }
