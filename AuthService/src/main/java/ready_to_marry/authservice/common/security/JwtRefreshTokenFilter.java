@@ -5,7 +5,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.web.filter.OncePerRequestFilter;
 import ready_to_marry.authservice.common.jwt.JwtTokenProvider;
 
@@ -14,7 +15,9 @@ import java.io.IOException;
 /**
  * Authorization 헤더의 refresh 토큰 유효성(서명+만료)만 검사
  *
- * refresh Token 흐름에서만 동작
+ * 리프레시 엔드포인트 전용 필터
+ * JWT Signature + 만료(exp) 검증만 수행
+ * Redis 등 저장소 검증은 Service 레이어에서 처리
  */
 @RequiredArgsConstructor
 public class JwtRefreshTokenFilter extends OncePerRequestFilter {
@@ -33,17 +36,15 @@ public class JwtRefreshTokenFilter extends OncePerRequestFilter {
                                     FilterChain chain) throws ServletException, IOException {
         String auth = request.getHeader("Authorization");
         if (auth == null || !auth.startsWith("Bearer ")) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Refresh token missing");
-            return;
+            throw new InsufficientAuthenticationException("Refresh token missing");
         }
 
         String token = auth.substring(7);
         if (!jwtTokenProvider.validateToken(token)) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Invalid refresh token");
-            return;
+            throw new BadCredentialsException("Invalid refresh token");
         }
 
-        // 다음 필터로 토큰 파싱+컨텍스트 설정 위임
+        // 단순 검증만 통과하면 비즈니스 로직으로 넘김
         chain.doFilter(request, response);
     }
 }

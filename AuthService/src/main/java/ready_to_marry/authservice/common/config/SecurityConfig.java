@@ -69,7 +69,7 @@ public class SecurityConfig {
                         AbstractPreAuthenticatedProcessingFilter.class
                 )
 
-                // 2) access/refresh 토큰 파싱(accountId) & 컨텍스트 세팅 필터
+                // 2) 컨텍스트 세팅 필터
                 .addFilterAfter(
                         preAuthHeaderFilter(),
                         JwtRefreshTokenFilter.class
@@ -80,7 +80,7 @@ public class SecurityConfig {
 
     /**
      * refresh 토큰 유효성(서명+만료)만 검사하는
-     * refresh 흐름에서만 동작하는 필터
+     * 리프레시 엔드포인트 전용 필터
      */
     @Bean
     public JwtRefreshTokenFilter jwtRefreshTokenFilter() {
@@ -88,13 +88,11 @@ public class SecurityConfig {
     }
 
     /**
-     * access 또는 refresh 토큰을 직접 파싱(accountId)하고
-     * Gateway가 덮어쓴 X-헤더를 꺼내
-     * SecurityContext에 세팅하는 필터
+     * Gateway가 삽입한 X-헤더만 신뢰해서 SecurityContext에 인증정보를 세팅하는 필터
      */
     @Bean
     public PreAuthHeaderFilter preAuthHeaderFilter() {
-        return new PreAuthHeaderFilter(jwtTokenProvider);
+        return new PreAuthHeaderFilter();
     }
 
     /**
