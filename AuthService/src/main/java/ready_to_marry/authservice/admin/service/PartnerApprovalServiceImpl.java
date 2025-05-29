@@ -19,7 +19,9 @@ import ready_to_marry.authservice.common.exception.BusinessException;
 import ready_to_marry.authservice.common.exception.ErrorCode;
 import ready_to_marry.authservice.common.exception.InfrastructureException;
 import ready_to_marry.authservice.common.util.JsonUtil;
+import ready_to_marry.authservice.partner.dto.request.PartnerResponseDto;
 import ready_to_marry.authservice.partner.email.EmailService;
+import ready_to_marry.authservice.partner.service.PartnerClient;
 
 import java.util.UUID;
 
@@ -30,6 +32,7 @@ public class PartnerApprovalServiceImpl implements PartnerApprovalService{
     private final AccountService accountService;
     private final WithdrawalHistoryService withdrawalHistoryService;
     private final EmailService emailService;
+    private final PartnerClient partnerClient;
 
     @Override
     @Transactional
@@ -88,14 +91,20 @@ public class PartnerApprovalServiceImpl implements PartnerApprovalService{
         }
 
         // 2) PARTNER SERVICE에 요청 (INTERNAL API) -> partner_profile(partnerDB) 조회
-        // TODO: INTERNAL API 호출 로직 추가
-        // TODO: INTERNAL API 호출 에러 시 처리 로직 추가
-        // FIXME: INTERNAL API 호출 결과에서 가져오는 partner_profile로 변경 (임시 코드)
+        // TODO: INTERNAL API 호출 로직 추가 O
+        // TODO: INTERNAL API 호출 에러 시 처리 로직 추가 O
+        PartnerResponseDto partnerResponseDto;
+        try {
+            partnerResponseDto = partnerClient.getPartnerProfile(account.getPartnerId()); // 예: partnerId가 있다면
+        } catch (Exception e) {
+            throw new InfrastructureException(ErrorCode.EXTERNAL_API_FAILURE, e);
+        }
+        // FIXME: INTERNAL API 호출 결과에서 가져오는 partner_profile로 변경 (임시 코드) O
         PartnerProfileSnapshot profileSnapshot = PartnerProfileSnapshot.builder()
-                .name("파트너1")
-                .companyName("하늘메이크업")
-                .phone("+82-10-0000-0000")
-                .businessNum("1234567890")
+                .name(partnerResponseDto.getName())
+                .companyName(partnerResponseDto.getCompanyName())
+                .phone(partnerResponseDto.getPhone())
+                .businessNum(partnerResponseDto.getBusinessNum())
                 .build();
 
         // 3) withdrawal_history 기록
@@ -127,8 +136,14 @@ public class PartnerApprovalServiceImpl implements PartnerApprovalService{
         }
 
         // 5) PARTNER SERVICE에 요청 (INTERNAL API) -> partner_profile(partnerDB) 삭제
-        // TODO: INTERNAL API 호출 로직 추가
-        // TODO: INTERNAL API 호출 에러 시 처리 로직 추가
+        // TODO: INTERNAL API 호출 로직 추가 O
+        // TODO: INTERNAL API 호출 에러 시 처리 로직 추가 O
+        try {
+            partnerClient.deletePartnerProfile(account.getPartnerId());
+        } catch (Exception e) {
+            log.error("{}: Failed to delete partner profile for partnerId={}", ErrorCode.EXTERNAL_API_FAILURE, account.getPartnerId(), e);
+            throw new InfrastructureException(ErrorCode.EXTERNAL_API_FAILURE, e);
+        }
 
         // 6) 계정 거부 안내 메일 전송 (비동기, 실패 무시)
         emailService.sendPartnerRejected(account.getLoginId(), request.getReason());

@@ -44,6 +44,7 @@ public class PartnerAuthServiceImpl implements PartnerAuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
     private final JwtProperties jwtProperties;
+    private final PartnerClient partnerClient;
 
     @Override
     @Transactional
@@ -66,8 +67,14 @@ public class PartnerAuthServiceImpl implements PartnerAuthService {
                         }
 
                         // 0-2) PARTNER SERVICE에 요청 (INTERNAL API) -> 해당 계정의 partner_profile(partnerDB) 삭제
-                        // TODO: INTERNAL API 호출 로직 추가
-                        // TODO: INTERNAL API 호출 에러 시 처리 로직 추가
+                        // TODO: INTERNAL API 호출 로직 추가 O
+                        // TODO: INTERNAL API 호출 에러 시 처리 로직 추가 O
+                        try {
+                            partnerClient.deletePartnerProfile(a.getPartnerId());
+                        } catch (Exception e) {
+                            log.error("{}: Failed to delete partner profile for partnerId={}", ErrorCode.EXTERNAL_API_FAILURE, a.getPartnerId(), e);
+                            throw new InfrastructureException(ErrorCode.EXTERNAL_API_FAILURE, e);
+                        }
                     });
         } catch (DataAccessException ex) {
             log.error("{}: identifierType=loginId, identifierValue={}", ErrorCode.DB_RETRIEVE_FAILURE.getMessage(), maskedLoginId, ex);
@@ -120,11 +127,15 @@ public class PartnerAuthServiceImpl implements PartnerAuthService {
                 .build();
 
         // 5)-2 PARTNER SERVICE에 요청 (INTERNAL API) -> partner_profile(partnerDB)에 저장
-        // TODO: INTERNAL API 호출 로직 추가
-        // TODO: INTERNAL API 호출 에러 시 처리 로직 추가
-        // FIXME: INTERNAL API 호출 결과에서 가져오는 partnerId로 변경 (임시 코드)
-        Random rnd = new Random();
-        Long partnerId = rnd.nextLong();
+        // TODO: INTERNAL API 호출 로직 추가 O
+        // TODO: INTERNAL API 호출 에러 시 처리 로직 추가 O
+        // FIXME: INTERNAL API 호출 결과에서 가져오는 partnerId로 변경 (임시 코드) O
+        Long partnerId;
+        try {
+            partnerId = partnerClient.savePartnerProfile(internalRequest);
+        } catch (Exception e) {
+            throw new InfrastructureException(ErrorCode.EXTERNAL_API_FAILURE, e);
+        }
 
         // 6) auth_account에 partnerId 업데이트
         try {

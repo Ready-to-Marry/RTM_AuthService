@@ -3,6 +3,11 @@ package ready_to_marry.authservice.common.exception;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 @Getter
 @RequiredArgsConstructor
 public enum ErrorCode {
@@ -20,6 +25,10 @@ public enum ErrorCode {
     REFRESH_TOKEN_INVALID(1311, "Invalid refresh token subject"),
     REFRESH_TOKEN_NOT_FOUND(1312, "Refresh token not found"),
     REFRESH_TOKEN_MISMATCH(1313, "Refresh token does not match"),
+    DUPLICATE_BUSINESS_NUM(1501, "business number duplicated"),
+    NO_SEARCH_RESULT(1502, "no search result"),
+    NO_SEARCH_TERM(1503, "can't blank search term"),
+    PARTNER_NOT_FOUND(1504, "partner not found"),
 
     // 2xxx: 인프라(시스템) 오류
     DB_SAVE_FAILURE(2301, "System error occurred while saving data to the database"),
@@ -37,8 +46,16 @@ public enum ErrorCode {
     OAUTH_STATE_SAVE_FAILURE(2313, "System error occurred while saving OAuth state"),
     OAUTH_STATE_RETRIEVE_REMOVE_FAILURE(2314, "System error occurred while retrieving or removing OAuth state"),
     OAUTH_TOKEN_EXCHANGE_FAILURE(2315, "System error occurred while exchanging OAuth token"),
-    OAUTH_USERINFO_FAILURE(2316, "System error occurred while fetching user info from OAuth provider");
+    OAUTH_USERINFO_FAILURE(2316, "System error occurred while fetching user info from OAuth provider"),
+    EXTERNAL_API_FAILURE(2317, "Can't find external API");
 
     private final int code;
     private final String message;
+
+    private static final Map<Integer, ErrorCode> CODE_MAP =
+            Arrays.stream(values()).collect(Collectors.toMap(ErrorCode::getCode, Function.identity()));
+
+    public static ErrorCode fromCode(int code) {
+        return CODE_MAP.get(code);
+    }
 }
