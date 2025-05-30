@@ -27,6 +27,7 @@ public final class JsonUtil {
         try {
             return MAPPER.writeValueAsString(obj);
         } catch (JsonProcessingException ex) {
+            log.error("{}: identifierType=class, identifierValue={}", ErrorCode.JSON_SERIALIZATION_FAILURE.getMessage(), obj.getClass().getSimpleName(), ex);
             throw new InfrastructureException(ErrorCode.JSON_SERIALIZATION_FAILURE, ex);
         }
     }

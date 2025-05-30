@@ -157,7 +157,7 @@ public class PartnerAuthServiceImpl implements PartnerAuthService {
     @Transactional
     public void verifyEmail(String token) {
         // 0) 마스킹된 token 준비 (로그용)
-        String maskedToken = MaskingUtil.maskEmailLoginId(token);
+        String maskedToken = MaskingUtil.maskToken(token);
 
         // 1) 이메일 verification token 으로 accountId 조회
         UUID accountId;
