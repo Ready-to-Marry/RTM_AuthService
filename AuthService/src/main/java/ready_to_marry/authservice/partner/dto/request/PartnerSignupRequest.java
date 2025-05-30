@@ -40,6 +40,7 @@ public class PartnerSignupRequest {
 
     // 회사 주소
     @NotBlank
+    @Size(max = 1000)
     private String address;
 
     // 담당자 연락처: 맨 앞에 + 가 0~1회 올 수 있고 그 뒤에는 숫자나 하이픈만 조합
