@@ -33,7 +33,6 @@ dependencies {
     // Web & Actuator
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
     // Retry & AOP
     implementation 'org.springframework.retry:spring-retry'
@@ -75,8 +74,8 @@ dependencies {
     testRuntimeOnly     'org.junit.platform:junit-platform-launcher'
 
     // WebClient
-    implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
 }
 
 tasks.named('test') {
