@@ -30,52 +30,22 @@ dependencyManagement {
 }
 
 dependencies {
-    // Web & Actuator
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // PostgreSQL JDBC Driver
+    implementation 'org.postgresql:postgresql:42.2.5'
+
+    // Spring Boot Actuator (Health Check용)
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
-    // Retry & AOP
-    implementation 'org.springframework.retry:spring-retry'
-    implementation 'org.springframework.boot:spring-boot-starter-aop'
-
-    // Security & OAuth2
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-
-    // Database (JPA + PostgreSQL)
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    runtimeOnly    'org.postgresql:postgresql:42.2.5'
-
-    // Key-Value Store (Redis)
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-
-    // Validation
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-
-    // JWT (jjwt)
-    implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
-    runtimeOnly     'io.jsonwebtoken:jjwt-impl:0.12.3'
-    runtimeOnly     'io.jsonwebtoken:jjwt-jackson:0.12.3'
-
-    // HTML MAIL
-    implementation 'org.springframework.boot:spring-boot-starter-mail'
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-
-    // Service Discovery (Eureka Client)
+    // eureka client
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-
-    // Dev Tools & Code Gen
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    compileOnly     'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
-
-    // Testing
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testRuntimeOnly     'org.junit.platform:junit-platform-launcher'
-
-    // WebClient
-    implementation 'org.springframework.boot:spring-boot-starter-webflux'
-    implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
 }
 
 tasks.named('test') {
