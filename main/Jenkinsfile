@@ -1,0 +1,67 @@
+pipeline {
+    agent any
+    environment {
+        SERVICE_NAME = 'auth-service'
+        GITHUB_CREDENTIALS = credentials('github-token')
+        HELM_REPO_URL = 'https://github.com/Ready-to-Marry/RTM_infra.git'
+    }
+    stages {
+        stage('Clone Helm Repo - onprem') {
+            steps {
+                script {
+                    echo "📥 Cloning Helm repo (onprem branch)..."
+                    sh 'rm -rf rtm-helm-onprem rtm-helm-main'
+
+                    withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_TOKEN')]) {
+                        sh """
+                            git clone --branch onprem https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/Ready-to-Marry/RTM_infra.git rtm-helm-onprem
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Extract Image Tag from onprem') {
+            steps {
+                script {
+                    echo "🔍 Extracting image tag from onprem values.yaml..."
+                    def tag = sh(
+                        script: "grep '^  tag:' rtm-helm-onprem/${SERVICE_NAME}/values.yaml | awk '{print \$2}'",
+                        returnStdout: true
+                    ).trim()
+                    echo "✅ Found tag: ${tag}"
+                    env.IMAGE_TAG = tag
+                }
+            }
+        }
+
+        stage('Clone Helm Repo - main and Update values.yaml') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_TOKEN')]) {
+                        echo "📥 Cloning Helm repo (main branch)..."
+                        sh """
+                            git clone --branch main https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/Ready-to-Marry/RTM_infra.git rtm-helm-main
+                        """
+
+                        echo "🛠️ Updating main branch values.yaml with tag: ${env.IMAGE_TAG}"
+                        sh """
+                            sed -i 's/^  tag: .*/  tag: "${env.IMAGE_TAG}"/' rtm-helm-main/${SERVICE_NAME}/values.yaml
+                        """
+
+                        dir('rtm-helm-main') {
+                            sh 'git config user.name "hyundoo"'
+                            sh 'git config user.email "hyundoo1006@gmail.com"'
+
+                            sh """
+                                git add ${SERVICE_NAME}/values.yaml
+                                git commit -m '🔄 Sync image tag from onprem: ${env.IMAGE_TAG}'
+                                git push origin HEAD:main
+                            """
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
