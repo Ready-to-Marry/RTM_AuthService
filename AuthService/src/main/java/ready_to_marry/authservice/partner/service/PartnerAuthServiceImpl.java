@@ -65,7 +65,7 @@ public class PartnerAuthServiceImpl implements PartnerAuthService {
                             log.error("{}: identifierType=accountId, identifierValue={}", ErrorCode.DB_DELETE_FAILURE, a.getAccountId(), ex);
                             throw new InfrastructureException(ErrorCode.DB_DELETE_FAILURE, ex);
                         }
-
+                        System.out.println("삭제 요청 시작");
                         // 0-2) PARTNER SERVICE에 요청 (INTERNAL API) -> 해당 계정의 partner_profile(partnerDB) 삭제
                         // TODO: INTERNAL API 호출 로직 추가 O
                         // TODO: INTERNAL API 호출 에러 시 처리 로직 추가 O
@@ -75,6 +75,7 @@ public class PartnerAuthServiceImpl implements PartnerAuthService {
                             log.error("{}: Failed to delete partner profile for partnerId={}", ErrorCode.EXTERNAL_API_FAILURE, a.getPartnerId(), e);
                             throw new InfrastructureException(ErrorCode.EXTERNAL_API_FAILURE, e);
                         }
+                        System.out.println("삭제 완료");
                     });
         } catch (DataAccessException ex) {
             log.error("{}: identifierType=loginId, identifierValue={}", ErrorCode.DB_RETRIEVE_FAILURE.getMessage(), maskedLoginId, ex);
@@ -126,6 +127,7 @@ public class PartnerAuthServiceImpl implements PartnerAuthService {
                 .businessNum(request.getBusinessNum())
                 .build();
 
+        System.out.println("추가 요청 시작");
         // 5)-2 PARTNER SERVICE에 요청 (INTERNAL API) -> partner_profile(partnerDB)에 저장
         // TODO: INTERNAL API 호출 로직 추가 O
         // TODO: INTERNAL API 호출 에러 시 처리 로직 추가 O
@@ -136,6 +138,7 @@ public class PartnerAuthServiceImpl implements PartnerAuthService {
         } catch (Exception e) {
             throw new InfrastructureException(ErrorCode.EXTERNAL_API_FAILURE, e);
         }
+        System.out.println("추가 요청 완료");
 
         // 6) auth_account에 partnerId 업데이트
         try {
