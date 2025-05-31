@@ -26,7 +26,7 @@ public class PartnerClient {
     public PartnerResponseDto getPartnerProfile(Long partnerId) {
         return webClientBuilder.build()
                 .get()
-                .uri(BASE_URL + "/partners/profile/{partnerId}", partnerId)
+                .uri(BASE_URL + "/partner/profile/{partnerId}", partnerId)
                 .retrieve()
                 .onStatus(status -> status.isError(), response ->
                         response.bodyToMono(new ParameterizedTypeReference<ApiResponse<Void>>() {})
@@ -53,14 +53,13 @@ public class PartnerClient {
     public void deletePartnerProfile(Long partnerId) {
         webClientBuilder.build()
                 .delete()
-                .uri(BASE_URL + "/partners/delete/{partnerId}", partnerId)
+                .uri(BASE_URL + "/partner/delete/{partnerId}", partnerId)
                 .retrieve()
                 .onStatus(status -> status.isError(), response ->
                         response.bodyToMono(new ParameterizedTypeReference<ApiResponse<Void>>() {})
                                 .flatMap(body -> {
                                     int code = body.getCode();
                                     String message = body.getMessage();
-
                                     if (code == 1504) {
                                         return Mono.error(new BusinessException(ErrorCode.PARTNER_NOT_FOUND));
                                     } else {
@@ -73,9 +72,11 @@ public class PartnerClient {
     }
 
     public Long savePartnerProfile(PartnerProfileRequest requestDto) {
+        System.out.println(requestDto);
+        System.out.println(BASE_URL + "/partner/register");
         return webClientBuilder.build()
                 .post()
-                .uri(BASE_URL + "/partners/register")
+                .uri(BASE_URL + "/partner/register")
                 .bodyValue(requestDto)
                 .retrieve()
                 .onStatus(status -> status.isError(), response ->
@@ -83,6 +84,7 @@ public class PartnerClient {
                                 .flatMap(body -> {
                                     int code = body.getCode();
                                     String message = body.getMessage();
+                                    System.out.println(BASE_URL + "/partners/register");
 
                                     if (code == 2501) {
                                         return Mono.error(new InfrastructureException(ErrorCode.DB_SAVE_FAILURE, new RuntimeException(message)));
