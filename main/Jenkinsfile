@@ -26,7 +26,7 @@ pipeline {
                 script {
                     echo "🔍 Extracting image tag from onprem values.yaml..."
                     def tag = sh(
-                        script: "grep '^  tag:' rtm-helm-onprem/${SERVICE_NAME}/values.yaml | awk '{print \$2}'",
+                        script: "grep '^  tag:' rtm-helm-onprem/${SERVICE_NAME}/values.yaml | awk '{print \$2}' | tr -d '\"'",
                         returnStdout: true
                     ).trim()
                     echo "✅ Found tag: ${tag}"
