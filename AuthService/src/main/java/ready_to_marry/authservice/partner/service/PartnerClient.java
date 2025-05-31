@@ -19,17 +19,18 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class PartnerClient {
 
-    private final WebClient webClient;
-    private final String partnerServiceUrl = "http://partner-service";
+    private final WebClient.Builder webClientBuilder;
 
+    private static final String BASE_URL = "http://partner-service";
 
     public PartnerResponseDto getPartnerProfile(Long partnerId) {
-        return webClient.get()
-                .uri(partnerServiceUrl + "/partners/profile/{partnerId}", partnerId)
+        return webClientBuilder.build()
+                .get()
+                .uri(BASE_URL + "/partners/profile/{partnerId}", partnerId)
                 .retrieve()
-                .onStatus(status -> status.isError(), (Function<ClientResponse, Mono<? extends Throwable>>) response ->
+                .onStatus(status -> status.isError(), response ->
                         response.bodyToMono(new ParameterizedTypeReference<ApiResponse<Void>>() {})
-                                .flatMap((Function<ApiResponse<Void>, Mono<? extends Throwable>>) body -> {
+                                .flatMap(body -> {
                                     int code = body.getCode();
                                     String message = body.getMessage();
 
@@ -44,16 +45,15 @@ public class PartnerClient {
                                     }
                                 })
                 )
-
-
                 .bodyToMono(new ParameterizedTypeReference<ApiResponse<PartnerResponseDto>>() {})
                 .map(ApiResponse::getData)
                 .block();
     }
 
     public void deletePartnerProfile(Long partnerId) {
-        webClient.delete()
-                .uri(partnerServiceUrl + "/partners/delete/{partnerId}", partnerId)
+        webClientBuilder.build()
+                .delete()
+                .uri(BASE_URL + "/partners/delete/{partnerId}", partnerId)
                 .retrieve()
                 .onStatus(status -> status.isError(), response ->
                         response.bodyToMono(new ParameterizedTypeReference<ApiResponse<Void>>() {})
@@ -61,7 +61,6 @@ public class PartnerClient {
                                     int code = body.getCode();
                                     String message = body.getMessage();
 
-                                    // 에러 코드에 따라 커스텀 예외 던지기
                                     if (code == 1504) {
                                         return Mono.error(new BusinessException(ErrorCode.PARTNER_NOT_FOUND));
                                     } else {
@@ -74,8 +73,9 @@ public class PartnerClient {
     }
 
     public Long savePartnerProfile(PartnerProfileRequest requestDto) {
-        Long partnerId = webClient.post()
-                .uri(partnerServiceUrl + "/partners/register")
+        return webClientBuilder.build()
+                .post()
+                .uri(BASE_URL + "/partners/register")
                 .bodyValue(requestDto)
                 .retrieve()
                 .onStatus(status -> status.isError(), response ->
@@ -91,10 +91,8 @@ public class PartnerClient {
                                     }
                                 })
                 )
-                .bodyToMono(new ParameterizedTypeReference<ApiResponse<Long>>() {})  // ← 여기!
+                .bodyToMono(new ParameterizedTypeReference<ApiResponse<Long>>() {})
                 .map(ApiResponse::getData)
                 .block();
-
-        return partnerId;
     }
 }
