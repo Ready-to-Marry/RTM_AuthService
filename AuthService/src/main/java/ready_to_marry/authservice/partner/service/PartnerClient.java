@@ -25,7 +25,7 @@ public class PartnerClient {
 
     public PartnerResponseDto getPartnerProfile(Long partnerId) {
         return webClient.get()
-                .uri(partnerServiceUrl + "/partner/profile/{partnerId}", partnerId)
+                .uri(partnerServiceUrl + "/partners/profile/{partnerId}", partnerId)
                 .retrieve()
                 .onStatus(status -> status.isError(), (Function<ClientResponse, Mono<? extends Throwable>>) response ->
                         response.bodyToMono(new ParameterizedTypeReference<ApiResponse<Void>>() {})
@@ -53,7 +53,7 @@ public class PartnerClient {
 
     public void deletePartnerProfile(Long partnerId) {
         webClient.delete()
-                .uri(partnerServiceUrl + "/delete/{partnerId}", partnerId)
+                .uri(partnerServiceUrl + "/partners/delete/{partnerId}", partnerId)
                 .retrieve()
                 .onStatus(status -> status.isError(), response ->
                         response.bodyToMono(new ParameterizedTypeReference<ApiResponse<Void>>() {})
@@ -75,7 +75,7 @@ public class PartnerClient {
 
     public Long savePartnerProfile(PartnerProfileRequest requestDto) {
         Long partnerId = webClient.post()
-                .uri(partnerServiceUrl + "/register")
+                .uri(partnerServiceUrl + "/partners/register")
                 .bodyValue(requestDto)
                 .retrieve()
                 .onStatus(status -> status.isError(), response ->
