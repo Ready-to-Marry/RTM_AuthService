@@ -61,7 +61,8 @@ public class SecurityConfig {
                                 "/auth/partners/verify",
                                 "/auth/partners/verify/result",
                                 "/auth/admins/login",
-                                "/auth/token/refresh"
+                                "/auth/token/refresh",
+                                "/actuator/health"
                         ).permitAll()
 
                         // 그 외 모든 요청은 인증 필요
