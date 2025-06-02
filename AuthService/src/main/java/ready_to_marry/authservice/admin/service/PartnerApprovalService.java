@@ -38,7 +38,7 @@ public interface PartnerApprovalService {
      * @throws InfrastructureException  DB_RETRIEVE_FAILURE
      * @throws InfrastructureException  DB_SAVE_FAILURE
      * @throws InfrastructureException  DB_DELETE_FAILURE
-     * @throws InfrastructureException JSON_SERIALIZATION_FAILURE
+     * @throws InfrastructureException  JSON_SERIALIZATION_FAILURE
      */
     void rejectPartner(UUID accountId, PartnerRejectionRequest request);
 }
