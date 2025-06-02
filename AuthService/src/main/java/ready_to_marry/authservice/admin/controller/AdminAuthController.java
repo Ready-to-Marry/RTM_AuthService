@@ -57,7 +57,7 @@ public class AdminAuthController {
 
         ApiResponse<JwtResponse> response = ApiResponse.<JwtResponse>builder()
                 .code(0)
-                .message("OK")
+                .message("Admin login successful")
                 .data(tokens)
                 .build();
 

@@ -2,8 +2,6 @@ package ready_to_marry.authservice.admin.dto.request;
 
 import lombok.*;
 
-import java.util.UUID;
-
 /**
  * 관리자 프로필 저장 INTERNAL API 요청시 보낼 DTO
  *
@@ -15,9 +13,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class AdminProfileRequest {
-    // 계정 고유 ID: auth_account의 account_id
-    private UUID accountId;
-
     // 관리자 이름
     private String name;
 
