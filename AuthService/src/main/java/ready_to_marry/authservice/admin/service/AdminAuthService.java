@@ -91,7 +91,7 @@ public class AdminAuthService {
         // 6) ADMIN SERVICE에 요청 (INTERNAL API) -> admin_profile(adminDB)에 저장
         // TODO: INTERNAL API 호출 로직 추가
         // TODO: INTERNAL API 호출 에러 시 처리 로직 추가
-        // FIXME: INTERNAL API 호출 결과에서 가져오는 partnerId로 변경 (임시 코드)
+        // FIXME: INTERNAL API 호출 결과에서 가져오는 adminId로 변경 (임시 코드)
         Random rnd = new Random();
         Long adminId = rnd.nextLong();
 
