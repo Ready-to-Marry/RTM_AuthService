@@ -36,6 +36,15 @@ class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
+    public void updateAdminId(UUID accountId, Long adminId) {
+        AuthAccount account = authAccountRepository.findById(accountId)
+                .orElseThrow(() -> new EntityNotFoundException("Account(" + accountId + ") not found"));
+
+        account.setAdminId(adminId);
+    }
+
+    @Override
+    @Transactional
     public void updatePartnerId(UUID accountId, Long partnerId) {
         AuthAccount account = authAccountRepository.findById(accountId)
                 .orElseThrow(() -> new EntityNotFoundException("Account(" + accountId + ") not found"));

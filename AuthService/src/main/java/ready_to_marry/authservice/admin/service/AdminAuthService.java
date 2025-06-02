@@ -24,6 +24,8 @@ import ready_to_marry.authservice.common.jwt.JwtProperties;
 import ready_to_marry.authservice.common.jwt.JwtTokenProvider;
 import ready_to_marry.authservice.token.service.RefreshTokenService;
 
+import java.util.Random;
+
 import static ready_to_marry.authservice.common.util.MaskingUtil.maskGenericLoginId;
 
 /**
@@ -81,7 +83,6 @@ public class AdminAuthService {
 
         // 5) ADMIN SERVICE에 요청할 DTO 생성 (INTERNAL API)
         AdminProfileRequest internalRequest = AdminProfileRequest.builder()
-                .accountId(savedAccount.getAccountId())
                 .name(request.getName())
                 .department(request.getDepartment())
                 .phone(request.getPhone())
@@ -90,7 +91,17 @@ public class AdminAuthService {
         // 6) ADMIN SERVICE에 요청 (INTERNAL API) -> admin_profile(adminDB)에 저장
         // TODO: INTERNAL API 호출 로직 추가
         // TODO: INTERNAL API 호출 에러 시 처리 로직 추가
+        // FIXME: INTERNAL API 호출 결과에서 가져오는 partnerId로 변경 (임시 코드)
+        Random rnd = new Random();
+        Long adminId = rnd.nextLong();
 
+        // 7) auth_account에 adminId 업데이트
+        try {
+            accountService.updateAdminId(savedAccount.getAccountId(), adminId);
+        } catch (DataAccessException ex) {
+            log.error("{}: identifierType=accountId, identifierValue={}", ErrorCode.DB_SAVE_FAILURE.getMessage(), savedAccount.getAccountId(), ex);
+            throw new InfrastructureException(ErrorCode.DB_SAVE_FAILURE, ex);
+        }
     }
 
     /**
@@ -114,9 +125,10 @@ public class AdminAuthService {
         // 1) Access Token 생성
         String accessToken = jwtTokenProvider.generateAccessToken(
                 account.getAccountId().toString(),
-                // role, adminRole 설정
+                // role, adminId, adminRole 설정
                 JwtClaims.builder()
                         .role(account.getRole().name())
+                        .adminId(account.getAdminId())
                         .adminRole(account.getAdminRole().name())
                         .build()
         );

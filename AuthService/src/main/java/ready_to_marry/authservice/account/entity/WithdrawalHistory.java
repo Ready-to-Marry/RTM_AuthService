@@ -62,6 +62,10 @@ public class WithdrawalHistory {
     @Column(name = "partner_id")
     private Long partnerId;
 
+    // admin_service 연동 ID (auth_account의 admin_id)
+    @Column(name = "admin_id")
+    private Long adminId;
+
     // USER, ADMIN, PARTNER의 보관 필수인 최소 프로필 정보
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "profile_snapshot", columnDefinition = "jsonb", nullable = false)

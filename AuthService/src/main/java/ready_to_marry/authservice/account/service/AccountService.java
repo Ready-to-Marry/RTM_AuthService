@@ -35,6 +35,14 @@ public interface AccountService {
     AuthAccount save(AuthAccount account);
 
     /**
+     * 계정에 연결된 adminId 업데이트
+     *
+     * @param accountId 계정의 UUID
+     * @param adminId 어드민 서비스의 식별자
+     */
+    void updateAdminId(UUID accountId, Long adminId);
+
+    /**
      * 계정에 연결된 partnerId 업데이트
      *
      * @param accountId 계정의 UUID
