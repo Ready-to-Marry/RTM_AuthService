@@ -61,6 +61,10 @@ public class AuthAccount {
     @Column(name = "partner_id")
     private Long partnerId;
 
+    // admin_service 연동 ID (auth_account의 admin_id)
+    @Column(name = "admin_id")
+    private Long adminId;
+
     // 계정 상태 (ACTIVE / WAITING_PROFILE_COMPLETION / WITHDRAWN / WAITING_EMAIL_VERIFICATION / PENDING_ADMIN_APPROVAL)
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 30, nullable = false)

@@ -41,7 +41,7 @@ public class PartnerAuthWebController {
             attrs.addFlashAttribute("status", "error");
         }
 
-        return "redirect:/auth/partners/verify/result";
+        return "redirect:/auth-service/auth/partners/verify/result";
     }
 
     /**
