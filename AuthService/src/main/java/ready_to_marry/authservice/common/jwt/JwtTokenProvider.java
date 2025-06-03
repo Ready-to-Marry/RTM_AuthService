@@ -53,6 +53,7 @@ public class JwtTokenProvider {
             builder.claim("partnerId", claims.getPartnerId());
         }
         if ("ADMIN".equals(claims.getRole()) && claims.getAdminRole() != null) {
+            builder.claim("adminId", claims.getAdminId());
             builder.claim("adminRole", claims.getAdminRole());
         }
 
