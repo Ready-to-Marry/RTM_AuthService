@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ready_to_marry.authservice.account.entity.AuthAccount;
 import ready_to_marry.authservice.account.service.AccountService;
-import ready_to_marry.authservice.common.config.AppProperties;
 import ready_to_marry.authservice.common.dto.response.JwtResponse;
 import ready_to_marry.authservice.common.enums.AccountStatus;
 import ready_to_marry.authservice.common.enums.AuthMethod;
@@ -21,6 +20,7 @@ import ready_to_marry.authservice.common.jwt.JwtClaims;
 import ready_to_marry.authservice.common.jwt.JwtProperties;
 import ready_to_marry.authservice.common.jwt.JwtTokenProvider;
 import ready_to_marry.authservice.common.util.MaskingUtil;
+import ready_to_marry.authservice.partner.config.AuthPartnerProperties;
 import ready_to_marry.authservice.partner.dto.request.PartnerLoginRequest;
 import ready_to_marry.authservice.partner.dto.request.PartnerProfileRequest;
 import ready_to_marry.authservice.partner.dto.request.PartnerSignupRequest;
@@ -29,7 +29,6 @@ import ready_to_marry.authservice.token.service.RefreshTokenService;
 import ready_to_marry.authservice.token.service.VerificationTokenService;
 
 import java.time.OffsetDateTime;
-import java.util.Random;
 import java.util.UUID;
 
 @Slf4j
@@ -40,7 +39,7 @@ public class PartnerAuthServiceImpl implements PartnerAuthService {
     private final VerificationTokenService verificationTokenService;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
-    private final AppProperties appProperties;
+    private final AuthPartnerProperties authPartnerProperties;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
     private final JwtProperties jwtProperties;
@@ -158,7 +157,7 @@ public class PartnerAuthServiceImpl implements PartnerAuthService {
         }
 
         // 8) 이메일 인증 메일 전송
-        String link = String.format("%s/auth/partners/verify?token=%s", appProperties.getUrlBase(), token);
+        String link = String.format("%s?token=%s", authPartnerProperties.getVerifyPath(), token);
         try {
             emailService.sendPartnerVerification(savedAccount.getLoginId(), link);
         } catch (MailException ex) {
