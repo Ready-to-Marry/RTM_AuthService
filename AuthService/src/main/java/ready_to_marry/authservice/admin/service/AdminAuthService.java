@@ -40,6 +40,7 @@ public class AdminAuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtProperties jwtProperties;
     private final RefreshTokenService refreshTokenService;
+    private final AdminClient adminClient;
 
     /**
      * SUPER_ADMIN 권한으로 관리자 계정을 사전 등록
@@ -89,11 +90,17 @@ public class AdminAuthService {
                 .build();
 
         // 6) ADMIN SERVICE에 요청 (INTERNAL API) -> admin_profile(adminDB)에 저장
-        // TODO: INTERNAL API 호출 로직 추가
-        // TODO: INTERNAL API 호출 에러 시 처리 로직 추가
-        // FIXME: INTERNAL API 호출 결과에서 가져오는 adminId로 변경 (임시 코드)
-        Random rnd = new Random();
-        Long adminId = rnd.nextLong();
+        // TODO: INTERNAL API 호출 로직 추가 O
+        // TODO: INTERNAL API 호출 에러 시 처리 로직 추가 O
+        // FIXME: INTERNAL API 호출 결과에서 가져오는 adminId로 변경 (임시 코드) O
+        System.out.println("추가 요청 시작");
+        Long adminId;
+        try {
+            adminId = adminClient.saveAdminProfile(internalRequest);
+        } catch (Exception e) {
+            throw new InfrastructureException(ErrorCode.EXTERNAL_API_FAILURE, e);
+        }
+        System.out.println("추가 요청 완료");
 
         // 7) auth_account에 adminId 업데이트
         try {
