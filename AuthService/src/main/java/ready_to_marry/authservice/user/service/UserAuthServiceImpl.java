@@ -33,6 +33,7 @@ public class UserAuthServiceImpl implements UserAuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
     private final JwtProperties jwtProperties;
+    private final UserClient userClient;
 
     @Override
     @Transactional
@@ -125,11 +126,17 @@ public class UserAuthServiceImpl implements UserAuthService {
                 .build();
 
         // 2)-2 USER SERVICE에 요청 (INTERNAL API) → user_profile(userDB)에 저장
-        // TODO: INTERNAL API 호출 로직 추가
-        // TODO: INTERNAL API 호출 에러 시 처리 로직 추가
-        // FIXME: INTERNAL API 호출 결과에서 가져오는 userId로 변경 (임시 코드)
-        Random rnd = new Random();
-        Long userId = rnd.nextLong();
+        // TODO: INTERNAL API 호출 로직 추가 O
+        // TODO: INTERNAL API 호출 에러 시 처리 로직 추가 O
+        // FIXME: INTERNAL API 호출 결과에서 가져오는 userId로 변경 (임시 코드) O
+        System.out.println("추가 요청 시작");
+        Long userId;
+        try {
+            userId = userClient.savePartnerProfile(internalRequest);
+        } catch (Exception e) {
+            throw new InfrastructureException(ErrorCode.EXTERNAL_API_FAILURE, e);
+        }
+        System.out.println("추가 요청 완료");
 
         // 3) auth_account에 userId, status 업데이트
         try {
