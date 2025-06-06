@@ -9,9 +9,9 @@ import lombok.*;
 import java.util.UUID;
 
 /**
- * 유저 프로필 등록 완료 요청 DTO
+ * 유저 프로필 + FCM 토큰 등록 완료 요청 DTO
  *
- * 소셜 로그인 후 추가로 받아야 할 사용자 프로필 정보
+ * 소셜 로그인 후 추가로 받아야 할 사용자 프로필 + FCM 토큰 정보
  */
 @Getter
 @Setter
@@ -32,4 +32,8 @@ public class UserProfileCompletionRequest {
     @NotBlank
     @Pattern(regexp = "^\\+?[0-9\\-]{1,20}$")
     private String phone;
+
+    // 유저 FCM 토큰(푸시 알림 허용 시에만 전달됨)
+    @Size(max = 255)
+    private String fcmToken;
 }

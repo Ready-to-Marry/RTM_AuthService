@@ -47,7 +47,7 @@ public interface UserAuthService {
      * 6) Refresh Token Redis에 저장
      * 7) 최종 응답 DTO 반환
      *
-     * @param request                       프로필 완성 요청 DTO (accountId, 추가 정보)
+     * @param request                       유저 프로필 + FCM 토큰 등록 완료 요청 DTO (accountId, 추가 정보)
      * @return JwtResponse                  발급된 access/refresh 토큰 + expiresIn (만료 시간)
      * @throws BusinessException            ACCOUNT_NOT_FOUND
      * @throws BusinessException            PROFILE_ALREADY_COMPLETED
