@@ -29,6 +29,11 @@ public class PreAuthHeaderFilter extends OncePerRequestFilter {
     // 스킵할 URL 패턴
     private static final List<String> EXCLUDE_URLS = List.of(
             // FIXME: permitAll인 요청 주소 변경 확인
+            "/error",
+            "/actuator/prometheus",
+            "/actuator/health",
+            "/actuator/info",
+            "/actuator/metrics",
             "/auth/oauth2/authorize/**",
             "/auth/oauth2/callback/**",
             "/auth/users/profile/complete",
