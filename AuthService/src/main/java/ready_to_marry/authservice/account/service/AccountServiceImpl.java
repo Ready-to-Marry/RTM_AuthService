@@ -2,11 +2,14 @@ package ready_to_marry.authservice.account.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ready_to_marry.authservice.account.entity.AuthAccount;
 import ready_to_marry.authservice.account.repository.AuthAccountRepository;
 import ready_to_marry.authservice.common.enums.AccountStatus;
+import ready_to_marry.authservice.common.enums.Role;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -74,5 +77,11 @@ class AccountServiceImpl implements AccountService {
     @Transactional
     public void deleteById(UUID accountId) {
         authAccountRepository.deleteById(accountId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<AuthAccount> findByRoleAndStatus(Role role, AccountStatus status, Pageable pageable) {
+        return authAccountRepository.findAllByRoleAndStatusOrderByCreatedAtAsc(role, status, pageable);
     }
 }
