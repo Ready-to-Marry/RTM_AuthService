@@ -23,8 +23,6 @@ import ready_to_marry.authservice.token.service.RefreshTokenService;
 import ready_to_marry.authservice.user.dto.request.UserProfileCompletionRequest;
 import ready_to_marry.authservice.user.dto.request.UserProfileRequest;
 
-import java.util.Random;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -123,6 +121,7 @@ public class UserAuthServiceImpl implements UserAuthService {
         UserProfileRequest internalRequest = UserProfileRequest.builder()
                 .name(request.getName())
                 .phone(request.getPhone())
+                .fcmToken(request.getFcmToken())
                 .build();
 
         // 2)-2 USER SERVICE에 요청 (INTERNAL API) → user_profile(userDB)에 저장

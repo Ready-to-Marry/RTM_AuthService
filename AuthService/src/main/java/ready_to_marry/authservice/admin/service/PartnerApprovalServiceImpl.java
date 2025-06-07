@@ -4,6 +4,8 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ready_to_marry.authservice.account.entity.AuthAccount;
@@ -11,7 +13,10 @@ import ready_to_marry.authservice.account.entity.WithdrawalHistory;
 import ready_to_marry.authservice.account.service.AccountService;
 import ready_to_marry.authservice.account.service.WithdrawalHistoryService;
 import ready_to_marry.authservice.admin.dto.request.PartnerRejectionRequest;
+import ready_to_marry.authservice.admin.dto.response.PartnerPendingResponse;
+import ready_to_marry.authservice.admin.dto.response.PartnerProfileAll;
 import ready_to_marry.authservice.admin.dto.response.PartnerProfileSnapshot;
+import ready_to_marry.authservice.common.dto.request.PagingRequest;
 import ready_to_marry.authservice.common.enums.AccountStatus;
 import ready_to_marry.authservice.common.enums.DeletionType;
 import ready_to_marry.authservice.common.enums.Role;
@@ -147,5 +152,64 @@ public class PartnerApprovalServiceImpl implements PartnerApprovalService{
 
         // 6) 계정 거부 안내 메일 전송 (비동기, 실패 무시)
         emailService.sendPartnerRejected(account.getLoginId(), request.getReason());
+    }
+
+    @Override
+    public Page<PartnerPendingResponse> getPendingPartners(PagingRequest pagingRequest) {
+        // 1) 페이징 요청 정보 생성
+        PageRequest pageRequest = PageRequest.of(pagingRequest.getPage(), pagingRequest.getSize());
+
+        // 2) 관리자 승인 대기 중인 파트너 계정 목록을 생성 시각 기준으로 오름차순 정렬하여 조회
+        Page<AuthAccount> page = fetchPendingAccounts(pageRequest);
+
+        // 3) 각 AuthAccount마다 PARTNER SERVICE에 요청 (INTERNAL API) -> partner_profile(partnerDB)에서 조회
+        // 4) AuthAccount + PartnerProfileAll → PartnerPendingResponse 매핑
+        return mapToPendingResponse(page);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<AuthAccount> fetchPendingAccounts(PageRequest pageRequest) {
+        Page<AuthAccount> page;
+        try {
+            page = accountService.findByRoleAndStatus(Role.PARTNER, AccountStatus.PENDING_ADMIN_APPROVAL, pageRequest);
+        } catch (DataAccessException ex) {
+            log.error("{}: identifierType=none, identifierValue=none", ErrorCode.DB_RETRIEVE_FAILURE.getMessage(), ex);
+            throw new InfrastructureException(ErrorCode.DB_RETRIEVE_FAILURE, ex);
+        }
+
+        return page;
+    }
+
+    public Page<PartnerPendingResponse> mapToPendingResponse(Page<AuthAccount> page) {
+        return page.map(account -> {
+            // TODO: INTERNAL API 호출 로직 추가 o
+            // TODO: INTERNAL API 호출 에러 시 처리 로직 추가 o
+            PartnerResponseDto partnerResponseDto;
+            try {
+                partnerResponseDto = partnerClient.getPartnerProfile(account.getPartnerId()); // 예: partnerId가 있다면
+            } catch (Exception e) {
+                throw new InfrastructureException(ErrorCode.EXTERNAL_API_FAILURE, e);
+            }
+            // FIXME: INTERNAL API 호출 결과에서 가져오는 파트너 프로필 정보로 변경 (임시 코드) o
+            PartnerProfileAll partnerProfileAll = PartnerProfileAll.builder()
+                    .name(partnerResponseDto.getName())
+                    .companyName(partnerResponseDto.getCompanyName())
+                    .address(partnerResponseDto.getAddress())
+                    .phone(partnerResponseDto.getPhone())
+                    .companyNum(partnerResponseDto.getCompanyNum())
+                    .businessNum(partnerResponseDto.getBusinessNum())
+                    .build();
+
+            return PartnerPendingResponse.builder()
+                    .accountId(account.getAccountId())
+                    .createdAt(account.getCreatedAt())
+                    .name(partnerProfileAll.getName())
+                    .companyName(partnerProfileAll.getCompanyName())
+                    .address(partnerProfileAll.getAddress())
+                    .phone(partnerProfileAll.getPhone())
+                    .companyNum(partnerProfileAll.getCompanyNum())
+                    .businessNum(partnerProfileAll.getBusinessNum())
+                    .build();
+        });
     }
 }
