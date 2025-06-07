@@ -50,6 +50,14 @@ public class SecurityConfig {
                         // 스프링 에러 핸들러 경로는 인증 없이 허용
                         .requestMatchers("/error").permitAll()
 
+                        // Actuator 주요 엔드포인트(prometheus, health, info, metrics)를 인증 없이 허용
+                        .requestMatchers(
+                                "/actuator/prometheus",
+                                "/actuator/health",
+                                "/actuator/info",
+                                "/actuator/metrics"
+                        ).permitAll()
+
                         // 인증 없이 접근 가능한 Auth 서비스 엔드포인트
                         .requestMatchers(
                                 // FIXME: permitAll인 요청 주소 변경 확인
@@ -61,8 +69,7 @@ public class SecurityConfig {
                                 "/auth/partners/verify",
                                 "/auth/partners/verify/result",
                                 "/auth/admins/login",
-                                "/auth/token/refresh",
-                                "/actuator/health"
+                                "/auth/token/refresh"
                         ).permitAll()
 
                         // 그 외 모든 요청은 인증 필요
