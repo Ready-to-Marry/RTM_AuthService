@@ -1,7 +1,10 @@
 package ready_to_marry.authservice.account.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import ready_to_marry.authservice.account.entity.AuthAccount;
 import ready_to_marry.authservice.common.enums.AccountStatus;
+import ready_to_marry.authservice.common.enums.Role;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -73,4 +76,14 @@ public interface AccountService {
      * @param accountId 삭제할 계정의 UUID
      */
     void deleteById(UUID accountId);
+
+    /**
+     * 지정된 역할(role) + 상태(status)를 가진 계정을 생성 시각 오름차순으로 페이징 조회
+     *
+     * @param role 페이징 조회할 역할
+     * @param status 페이징 조회할 계정 상태
+     * @param pageable 페이징 정보
+     * @return 조회된 Page<AuthAccount>
+     */
+    Page<AuthAccount> findByRoleAndStatus(Role role, AccountStatus status, Pageable pageable);
 }
